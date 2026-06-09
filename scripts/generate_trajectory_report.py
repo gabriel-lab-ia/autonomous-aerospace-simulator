@@ -3,63 +3,27 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
-from aerospace_sim.core.state import RocketState
-from aerospace_sim.core.vector3 import Vector3
-from aerospace_sim.simulation.basic_simulator import BasicRocketSimulator
-from aerospace_sim.vehicle.engine import RocketEngine
+from aerospace_sim.simulation.scenario import SimulationScenario
+from aerospace_sim.telemetry.recorder import TelemetryRecorder
+from aerospace_sim.visualization.phase_space import save_trajectory_phase_space_3d
 
 
 RESULTS_DIR = Path("docs/results")
 
 
-def create_initial_state() -> RocketState:
-    return RocketState(
-        position=Vector3(0.0, 0.0, 100.0),
-        velocity=Vector3(0.0, 0.0, -10.0),
-        orientation=Vector3(0.0, 0.0, 0.0),
-        angular_velocity=Vector3(0.0, 0.0, 0.0),
-        fuel_mass=800.0,
-    )
-
-
-def create_simulator() -> BasicRocketSimulator:
-    engine = RocketEngine(
-        max_thrust=35000.0,
-        fuel_burn_rate=2.5,
-    )
-
-    return BasicRocketSimulator(
-        engine=engine,
-        dry_mass=1200.0,
-        dt=0.02,
-    )
-
-
 def run_trajectory(throttle: float, steps: int = 100) -> list[dict[str, float]]:
-    state = create_initial_state()
-    simulator = create_simulator()
-
-    rows = []
+    scenario = SimulationScenario.from_yaml()
+    state = scenario.create_initial_state()
+    simulator = scenario.create_simulator()
+    recorder = TelemetryRecorder()
 
     for step in range(steps + 1):
-        rows.append(
-            {
-                "throttle": throttle,
-                "step": step,
-                "time_s": state.time,
-                "altitude_m": state.position.z,
-                "position_x_m": state.position.x,
-                "position_y_m": state.position.y,
-                "velocity_z_m_s": state.velocity.z,
-                "speed_m_s": state.speed,
-                "fuel_mass_kg": state.fuel_mass,
-            }
-        )
+        recorder.record(step, state, throttle)
 
         if step < steps:
             state = simulator.step(state, throttle=throttle)
 
-    return rows
+    return recorder.to_dataframe().to_dict(orient="records")
 
 
 def generate_trajectory_dataframe() -> pd.DataFrame:
@@ -128,6 +92,15 @@ def save_fuel_plot(df: pd.DataFrame) -> None:
     plt.close()
 
 
+def save_phase_space_plot(df: pd.DataFrame) -> None:
+    save_trajectory_phase_space_3d(
+        df,
+        RESULTS_DIR / "trajectory_phase_space_3d.png",
+        "Fixed-Throttle Trajectories in 3D Phase Space",
+        group_column="throttle",
+    )
+
+
 def build_summary_table(df: pd.DataFrame) -> pd.DataFrame:
     summary_rows = []
 
@@ -179,6 +152,13 @@ Unlike the initial throttle comparison, this report tracks the evolution of:
 
 ![Fuel mass over time](trajectory_fuel_over_time.png)
 
+## 3D Phase Space
+
+![Trajectory phase space](trajectory_phase_space_3d.png)
+
+This 3D plot uses time, altitude, and vertical velocity. It visualizes the current
+vertical dynamics without implying lateral motion that the simulator does not yet model.
+
 ## Engineering Interpretation
 
 The trajectory curves validate the simulator as a time-dependent dynamical system.
@@ -205,6 +185,7 @@ def main() -> None:
     save_altitude_plot(df)
     save_velocity_plot(df)
     save_fuel_plot(df)
+    save_phase_space_plot(df)
     save_markdown_report(summary)
 
     print("Trajectory report generated successfully.")

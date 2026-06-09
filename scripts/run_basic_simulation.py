@@ -1,28 +1,10 @@
-from aerospace_sim.core.vector3 import Vector3
-from aerospace_sim.core.state import RocketState
-from aerospace_sim.vehicle.engine import RocketEngine
-from aerospace_sim.simulation.basic_simulator import BasicRocketSimulator
+from aerospace_sim.simulation.scenario import SimulationScenario
 
 
 def main() -> None:
-    state = RocketState(
-        position=Vector3(0.0, 0.0, 100.0),
-        velocity=Vector3(0.0, 0.0, -10.0),
-        orientation=Vector3(0.0, 0.0, 0.0),
-        angular_velocity=Vector3(0.0, 0.0, 0.0),
-        fuel_mass=800.0,
-    )
-
-    engine = RocketEngine(
-        max_thrust=35000.0,
-        fuel_burn_rate=2.5,
-    )
-
-    simulator = BasicRocketSimulator(
-        engine=engine,
-        dry_mass=1200.0,
-        dt=0.02,
-    )
+    scenario = SimulationScenario.from_yaml()
+    state = scenario.create_initial_state()
+    simulator = scenario.create_simulator()
 
     steps = 100
     throttle = 0.5

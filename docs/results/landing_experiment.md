@@ -26,6 +26,13 @@ The simulation classifies each run as:
 
 ![Final vertical velocity by throttle](landing_velocity_by_throttle.png)
 
+## 3D Landing Outcome Space
+
+![3D landing outcome space](landing_summary_3d.png)
+
+This R3 summary combines throttle, final vertical velocity, and final altitude.
+Color represents final simulation time.
+
 ## Engineering Interpretation
 
 The experiment shows that fixed throttle is not sufficient for reliable landing.

@@ -28,6 +28,14 @@ The controller is dynamic: it reads the rocket state at each simulation step and
 
 ![Fuel mass over time](heuristic_v2_fuel_over_time.png)
 
+### 3D Trajectory Phase Space
+
+![3D trajectory phase space](heuristic_v2_phase_space_3d.png)
+
+### 3D Controller State Space
+
+![3D controller state space](heuristic_v2_control_state_3d.png)
+
 ## Engineering Interpretation
 
 The V2 heuristic controller does not land the rocket.

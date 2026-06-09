@@ -18,6 +18,9 @@ class HeuristicLandingController:
     low_altitude_target_vz: float = -1.5
 
     kp: float = 0.045
+    dry_mass: float = 1200.0
+    max_thrust: float = 35000.0
+    gravity_m_s2: float = 9.80665
 
     def compute_throttle(self, state: RocketState) -> float:
         altitude = state.altitude
@@ -51,12 +54,8 @@ class HeuristicLandingController:
         return self.low_altitude_target_vz
 
     def _estimated_hover_throttle(self, state: RocketState) -> float:
-        dry_mass = 1200.0
-        max_thrust = 35000.0
-        gravity = 9.80665
-
-        total_mass = dry_mass + state.fuel_mass
-        hover_throttle = (total_mass * gravity) / max_thrust
+        total_mass = self.dry_mass + state.fuel_mass
+        hover_throttle = (total_mass * self.gravity_m_s2) / self.max_thrust
 
         return self._clamp(hover_throttle)
 

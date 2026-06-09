@@ -5,66 +5,39 @@ import pandas as pd
 
 from aerospace_sim.control.heuristic_landing_controller_v2 import HeuristicLandingController
 from aerospace_sim.core.state import RocketState
-from aerospace_sim.core.vector3 import Vector3
 from aerospace_sim.environment.landing import evaluate_landing
-from aerospace_sim.simulation.basic_simulator import BasicRocketSimulator
-from aerospace_sim.vehicle.engine import RocketEngine
+from aerospace_sim.simulation.scenario import SimulationScenario
+from aerospace_sim.telemetry.recorder import TelemetryRecorder
+from aerospace_sim.visualization.phase_space import (
+    save_control_state_3d,
+    save_trajectory_phase_space_3d,
+)
 
 
 RESULTS_DIR = Path("docs/results")
 
 
-def create_initial_state() -> RocketState:
-    return RocketState(
-        position=Vector3(0.0, 0.0, 100.0),
-        velocity=Vector3(0.0, 0.0, -10.0),
-        orientation=Vector3(0.0, 0.0, 0.0),
-        angular_velocity=Vector3(0.0, 0.0, 0.0),
-        fuel_mass=800.0,
+def run_experiment(max_steps: int | None = None) -> tuple[RocketState, pd.DataFrame]:
+    scenario = SimulationScenario.from_yaml()
+    state = scenario.create_initial_state()
+    simulator = scenario.create_simulator()
+    controller = HeuristicLandingController(
+        dry_mass=scenario.dry_mass,
+        max_thrust=scenario.max_thrust,
     )
+    recorder = TelemetryRecorder()
 
-
-def create_simulator() -> BasicRocketSimulator:
-    engine = RocketEngine(
-        max_thrust=35000.0,
-        fuel_burn_rate=2.5,
-    )
-
-    return BasicRocketSimulator(
-        engine=engine,
-        dry_mass=1200.0,
-        dt=0.02,
-    )
-
-
-def run_experiment(max_steps: int = 3000) -> tuple[RocketState, pd.DataFrame]:
-    state = create_initial_state()
-    simulator = create_simulator()
-    controller = HeuristicLandingController()
-
-    rows = []
-
-    for step in range(max_steps):
+    for step in range(max_steps or scenario.max_steps):
         throttle = controller.compute_throttle(state)
 
-        rows.append(
-            {
-                "step": step,
-                "time_s": state.time,
-                "altitude_m": state.altitude,
-                "velocity_z_m_s": state.velocity.z,
-                "speed_m_s": state.speed,
-                "fuel_mass_kg": state.fuel_mass,
-                "throttle": throttle,
-            }
-        )
+        recorder.record(step, state, throttle)
 
         state = simulator.step(state, throttle=throttle)
 
         if state.altitude <= 0.0:
             break
 
-    return state, pd.DataFrame(rows)
+    return state, recorder.to_dataframe()
 
 
 def save_altitude_plot(df: pd.DataFrame) -> None:
@@ -109,6 +82,19 @@ def save_fuel_plot(df: pd.DataFrame) -> None:
     plt.tight_layout()
     plt.savefig(RESULTS_DIR / "heuristic_v2_fuel_over_time.png", dpi=160)
     plt.close()
+
+
+def save_3d_plots(df: pd.DataFrame) -> None:
+    save_trajectory_phase_space_3d(
+        df,
+        RESULTS_DIR / "heuristic_v2_phase_space_3d.png",
+        "Heuristic V2 Trajectory in 3D Phase Space",
+    )
+    save_control_state_3d(
+        df,
+        RESULTS_DIR / "heuristic_v2_control_state_3d.png",
+        "Heuristic V2 Controller State Space",
+    )
 
 
 def save_report(evaluation, telemetry: pd.DataFrame) -> None:
@@ -157,6 +143,14 @@ The controller is dynamic: it reads the rocket state at each simulation step and
 
 ![Fuel mass over time](heuristic_v2_fuel_over_time.png)
 
+### 3D Trajectory Phase Space
+
+![3D trajectory phase space](heuristic_v2_phase_space_3d.png)
+
+### 3D Controller State Space
+
+![3D controller state space](heuristic_v2_control_state_3d.png)
+
 ## Engineering Interpretation
 
 The V2 heuristic controller does not land the rocket.
@@ -192,6 +186,7 @@ def main() -> None:
     save_velocity_plot(telemetry)
     save_throttle_plot(telemetry)
     save_fuel_plot(telemetry)
+    save_3d_plots(telemetry)
     save_report(evaluation, telemetry)
 
     print("Heuristic V2 report generated successfully.")

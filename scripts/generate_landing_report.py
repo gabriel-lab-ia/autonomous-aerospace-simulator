@@ -4,46 +4,23 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from aerospace_sim.core.state import RocketState
-from aerospace_sim.core.vector3 import Vector3
 from aerospace_sim.environment.landing import evaluate_landing
-from aerospace_sim.simulation.basic_simulator import BasicRocketSimulator
-from aerospace_sim.vehicle.engine import RocketEngine
+from aerospace_sim.simulation.scenario import SimulationScenario
+from aerospace_sim.visualization.phase_space import save_landing_summary_3d
 
 
 RESULTS_DIR = Path("docs/results")
 
 
-def create_initial_state() -> RocketState:
-    return RocketState(
-        position=Vector3(0.0, 0.0, 100.0),
-        velocity=Vector3(0.0, 0.0, -10.0),
-        orientation=Vector3(0.0, 0.0, 0.0),
-        angular_velocity=Vector3(0.0, 0.0, 0.0),
-        fuel_mass=800.0,
-    )
-
-
-def create_simulator() -> BasicRocketSimulator:
-    engine = RocketEngine(
-        max_thrust=35000.0,
-        fuel_burn_rate=2.5,
-    )
-
-    return BasicRocketSimulator(
-        engine=engine,
-        dry_mass=1200.0,
-        dt=0.02,
-    )
-
-
 def run_until_terminal(
     throttle: float,
-    max_steps: int = 3000,
+    max_steps: int | None = None,
 ) -> tuple[RocketState, str]:
-    state = create_initial_state()
-    simulator = create_simulator()
+    scenario = SimulationScenario.from_yaml()
+    state = scenario.create_initial_state()
+    simulator = scenario.create_simulator()
 
-    for _ in range(max_steps):
+    for _ in range(max_steps or scenario.max_steps):
         state = simulator.step(state, throttle=throttle)
 
         if state.altitude <= 0.0:
@@ -113,6 +90,14 @@ def save_velocity_plot(df: pd.DataFrame) -> None:
     plt.close()
 
 
+def save_3d_summary_plot(df: pd.DataFrame) -> None:
+    save_landing_summary_3d(
+        df,
+        RESULTS_DIR / "landing_summary_3d.png",
+        "Fixed-Throttle Landing Outcomes in 3D",
+    )
+
+
 def save_markdown_report(df: pd.DataFrame) -> None:
     table = df.to_markdown(index=False)
 
@@ -138,6 +123,13 @@ The simulation classifies each run as:
 
 ![Final vertical velocity by throttle](landing_velocity_by_throttle.png)
 
+## 3D Landing Outcome Space
+
+![3D landing outcome space](landing_summary_3d.png)
+
+This R3 summary combines throttle, final vertical velocity, and final altitude.
+Color represents final simulation time.
+
 ## Engineering Interpretation
 
 The experiment shows that fixed throttle is not sufficient for reliable landing.
@@ -161,6 +153,7 @@ def main() -> None:
 
     save_status_plot(df)
     save_velocity_plot(df)
+    save_3d_summary_plot(df)
     save_markdown_report(df)
 
     print("Landing report generated successfully.")
@@ -169,4 +162,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-    

@@ -1,0 +1,14 @@
+index,state,value
+0,position_x_m,0.0
+1,position_y_m,0.0
+2,altitude_m,100.0
+3,velocity_x_m_s,0.0
+4,velocity_y_m_s,0.0
+5,velocity_z_m_s,-10.0
+6,roll_rad,0.0
+7,pitch_rad,0.0
+8,yaw_rad,0.0
+9,angular_velocity_x_rad_s,0.0
+10,angular_velocity_y_rad_s,0.0
+11,angular_velocity_z_rad_s,0.0
+12,fuel_mass_kg,800.0

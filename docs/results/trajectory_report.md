@@ -30,6 +30,13 @@ Unlike the initial throttle comparison, this report tracks the evolution of:
 
 ![Fuel mass over time](trajectory_fuel_over_time.png)
 
+## 3D Phase Space
+
+![Trajectory phase space](trajectory_phase_space_3d.png)
+
+This 3D plot uses time, altitude, and vertical velocity. It visualizes the current
+vertical dynamics without implying lateral motion that the simulator does not yet model.
+
 ## Engineering Interpretation
 
 The trajectory curves validate the simulator as a time-dependent dynamical system.

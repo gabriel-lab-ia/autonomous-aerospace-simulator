@@ -1,0 +1,4 @@
+throttle,initial_altitude_m,initial_velocity_z_m_s,next_altitude_m,next_velocity_z_m_s,next_fuel_mass_kg
+0.0,100.0,-10.0,99.79607734,-10.196133,800.0
+0.5,100.0,-10.0,99.79957734,-10.021133,799.975
+1.0,100.0,-10.0,99.80307734,-9.846133,799.95
