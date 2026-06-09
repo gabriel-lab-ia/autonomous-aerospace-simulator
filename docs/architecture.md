@@ -11,6 +11,8 @@
 - simulation: Euler-integrated basic rocket simulator
 - telemetry: reusable, dataframe-backed telemetry recorder
 - visualization: reusable 3D phase-space and controller-state plots
+- api: authenticated FastAPI routes and validated request/response schemas
+- database: SQLAlchemy persistence for simulation metadata and telemetry
 
 ## Planned Layers
 
@@ -25,7 +27,7 @@
 
 ## Simulation Loop
 
-YAML Scenario -> Initial State -> Controller or Fixed Throttle -> Engine and Gravity -> Simulator Step -> Updated State -> Evaluation and Telemetry
+API or Script -> YAML Scenario -> Initial State -> Controller or Fixed Throttle -> Simulator Step -> Evaluation and Telemetry -> SQL or Curated Results
 
 ## Engineering Rule
 

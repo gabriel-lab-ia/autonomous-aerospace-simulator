@@ -46,5 +46,9 @@ class TelemetryRecorder:
     def record(self, step: int, state: RocketState, throttle: float) -> None:
         self._records.append(TelemetryRecord.from_state(step, state, throttle))
 
+    @property
+    def records(self) -> tuple[TelemetryRecord, ...]:
+        return tuple(self._records)
+
     def to_dataframe(self) -> pd.DataFrame:
         return pd.DataFrame(record.to_dict() for record in self._records)

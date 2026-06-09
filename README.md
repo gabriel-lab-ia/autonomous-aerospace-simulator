@@ -21,6 +21,7 @@ The current implementation models deterministic vertical motion using gravity, m
 - CSV telemetry, 2D/3D PNG plots, and Markdown reports
 - reproducible Python environment managed with `uv`
 - automated pytest validation with GitHub Actions
+- secure FastAPI service with SQL-backed simulation telemetry
 
 ## Technical Stack
 
@@ -30,7 +31,24 @@ The current implementation models deterministic vertical motion using gravity, m
 - Pandas
 - YAML configs
 
-PyTorch, CUDA-oriented training, SQLite telemetry, and deployment services are planned capabilities and are not integrated into the current simulation loop.
+PyTorch, CUDA-oriented training, and container-orchestration deployment services are planned capabilities and are not integrated into the current simulation loop.
+
+## Secure API And SQL Telemetry Layer
+
+The project includes a FastAPI service with API key authentication and a
+SQLAlchemy-backed telemetry store. SQLite supports local development by
+default, while `DATABASE_URL` keeps the persistence layer ready for PostgreSQL.
+
+```bash
+uv sync --group dev
+cp .env.example .env
+uv run python scripts/run_api.py
+```
+
+- Public health endpoint: `GET /health`
+- Protected simulation execution: `POST /simulations/*`
+- Protected metadata and telemetry queries: `GET /simulations` and `GET /telemetry/{id}`
+- [API architecture, security, and curl examples](docs/api.md)
 
 ## Engineering Architecture
 

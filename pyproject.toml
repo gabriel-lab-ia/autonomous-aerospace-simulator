@@ -9,15 +9,21 @@ description = "Simplified aerospace simulator for rocket landing and autonomous 
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "fastapi>=0.115.0",
     "matplotlib>=3.10.9",
     "numpy>=2.4.6",
     "pandas>=3.0.3",
+    "pydantic>=2.10.0",
+    "python-dotenv>=1.0.1",
     "pyyaml>=6.0.3",
+    "sqlalchemy>=2.0.36",
     "tabulate>=0.10.0",
+    "uvicorn>=0.34.0",
 ]
 
 [dependency-groups]
 dev = [
+    "httpx2>=0.1.0",
     "pytest>=8.0",
 ]
 ml = [
@@ -30,6 +36,9 @@ ml = [
 notebooks = [
     "ipykernel>=7.2.0",
     "jupyter>=1.1.1",
+]
+postgres = [
+    "psycopg[binary]>=3.2.0",
 ]
 
 [tool.setuptools.packages.find]
