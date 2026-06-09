@@ -1,22 +1,49 @@
 # Autonomous Aerospace Simulator
 
-A 3D computational aerospace simulation project focused on autonomous rocket landing, control systems, deep learning, reinforcement learning, telemetry, and GPU-accelerated training.
+A simplified aerospace simulation project for studying rocket landing dynamics and autonomous control.
 
 ## Core Objective
 
-Build a simplified but extensible 3D rocket landing simulator where autonomous controllers learn to stabilize and land a reusable rocket under physical constraints.
+Build an extensible simulator where increasingly capable controllers can be evaluated under explicit physical constraints.
+
+The current implementation models deterministic vertical motion using gravity, mass, upward thrust, fuel consumption, and Euler integration. The state representation is 3D-ready, but rotational dynamics, aerodynamics, gimbal control, PID, reinforcement learning, and deployment infrastructure are future work.
+
+## Current Capabilities
+
+- vertical rocket dynamics represented with 3D vectors
+- gravity, variable mass, throttle, thrust, and fuel consumption
+- fixed-throttle experiments
+- landing outcome evaluation
+- heuristic landing controllers V1 and V2
+- CSV telemetry, PNG plots, and Markdown reports
+- reproducible Python environment managed with `uv`
 
 ## Technical Stack
 
 - Python 3.11
 - NumPy
-- SciPy
-- PyTorch + CUDA
 - Matplotlib
 - Pandas
 - YAML configs
-- SQLite telemetry
-- Jupyter notebooks
+
+PyTorch, CUDA-oriented training, SQLite telemetry, and deployment services are planned capabilities and are not integrated into the current simulation loop.
+
+## Quick Start
+
+```bash
+uv sync
+source .venv/bin/activate
+python scripts/run_basic_simulation.py
+pytest -q
+```
+
+Until the package is installed editable, scripts can also be run explicitly with:
+
+```bash
+PYTHONPATH=src python scripts/run_basic_simulation.py
+```
+
+See [Reproducibility](docs/reproducibility.md) for all experiment and report-generation commands.
 
 ## State Vector
 
@@ -34,13 +61,19 @@ Build a simplified but extensible 3D rocket landing simulator where autonomous c
 
 ## Roadmap
 
-1. Project foundation
-2. Physics engine
-3. Classical PID control
-4. Neural controller
-5. Reinforcement learning
-6. 3D visualization
-7. FastAPI, Docker, and Kubernetes layer
+1. Strengthen physics contracts and automated tests
+2. Consolidate scenario configuration and telemetry
+3. Implement and benchmark a classical PID controller
+4. Add a neural controller baseline
+5. Expose the landing task as a reinforcement learning environment
+6. Add telemetry database and 3D visualization
+7. Add FastAPI, Docker, and Kubernetes deployment layers
+
+## Current Limitations
+
+The simulator is intentionally minimal and should not be treated as a high-fidelity aerospace model. It currently has no real rotational dynamics, aerodynamics, wind, gimbal actuation, or precise collision-time interpolation.
+
+See [Current Simulator Limitations](docs/limitations.md) for the complete scope and engineering implications.
 
 ## Initial Results
 
@@ -121,3 +154,7 @@ This failed-control experiment is documented because it motivates the next step:
 ### Heuristic V2 Throttle Over Time
 
 ![Heuristic V2 throttle](docs/results/heuristic_v2_throttle_over_time.png)
+
+## Results Policy
+
+Curated, small, reproducible reports and plots are versioned in `docs/results/` so GitHub visitors can inspect the project without running it first. Raw telemetry, checkpoints, databases, and temporary experiment outputs belong in `outputs/`, which is ignored by Git.

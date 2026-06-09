@@ -12,3 +12,6 @@ flowchart LR
     H --> I[Velocity Update]
     I --> J[Position Update]
     J --> A
+```
+
+The current controller action is throttle only. Gimbal, rotational dynamics, aerodynamics, and stochastic disturbances are future work.

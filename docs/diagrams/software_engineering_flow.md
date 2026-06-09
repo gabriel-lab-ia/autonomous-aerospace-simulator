@@ -11,3 +11,6 @@ flowchart TD
     G --> H[CSV Results]
     G --> I[Plots]
     G --> J[Markdown Report]
+```
+
+The current experiment scripts coordinate this flow. Reusable telemetry and visualization modules are planned but not implemented yet.
