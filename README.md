@@ -67,3 +67,22 @@ Detailed report:
 ### Final Vertical Velocity by Throttle Level
 
 ![Final vertical velocity by throttle](docs/results/throttle_final_velocity.png)
+
+## Trajectory Time-Series Report
+
+The simulator also records full time-series trajectories for altitude, vertical velocity, and fuel mass.
+
+- [Trajectory Report](docs/results/trajectory_report.md)
+- [Trajectory Time-Series CSV](docs/results/trajectory_timeseries.csv)
+
+### Altitude Over Time
+
+![Altitude over time](docs/results/trajectory_altitude_over_time.png)
+
+### Vertical Velocity Over Time
+
+![Vertical velocity over time](docs/results/trajectory_velocity_over_time.png)
+
+### Fuel Mass Over Time
+
+![Fuel mass over time](docs/results/trajectory_fuel_over_time.png)
