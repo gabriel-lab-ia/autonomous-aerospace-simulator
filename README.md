@@ -41,3 +41,19 @@ Build a simplified but extensible 3D rocket landing simulator where autonomous c
 5. Reinforcement learning
 6. 3D visualization
 7. FastAPI, Docker, and Kubernetes layer
+
+## Initial Results
+
+The first physics validation experiment compares three throttle levels: `0.0`, `0.5`, and `1.0`.
+
+The results show coherent vertical dynamics:
+
+- With zero throttle, the rocket accelerates downward under gravity.
+- With half throttle, descent is reduced.
+- With full throttle, thrust exceeds weight and vertical velocity becomes positive.
+
+Detailed report:
+
+- [Throttle Comparison Report](docs/results/throttle_comparison.md)
+- [Software Engineering Flow](docs/diagrams/software_engineering_flow.md)
+- [Physics and Control Loop](docs/diagrams/physics_control_loop.md)
