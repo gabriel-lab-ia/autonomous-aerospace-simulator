@@ -86,3 +86,19 @@ The simulator also records full time-series trajectories for altitude, vertical 
 ### Fuel Mass Over Time
 
 ![Fuel mass over time](docs/results/trajectory_fuel_over_time.png)
+
+## Landing Evaluation
+
+The simulator now evaluates fixed-throttle landing attempts as `landed`, `crashed`, or `still_flying`.
+
+This experiment shows that fixed throttle cannot solve the landing task by itself: low throttle crashes, while high throttle causes the rocket to keep flying upward.
+
+- [Landing Evaluation Report](docs/results/landing_experiment.md)
+
+### Landing Status by Throttle
+
+![Landing status by throttle](docs/results/landing_status_by_throttle.png)
+
+### Final Vertical Velocity by Throttle
+
+![Landing velocity by throttle](docs/results/landing_velocity_by_throttle.png)
