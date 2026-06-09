@@ -6,10 +6,18 @@ Run commands from the repository root with Python 3.11 and `uv`.
 
 ```bash
 uv sync
-source .venv/bin/activate
 ```
 
-After editable package installation is validated, scripts should import `aerospace_sim` directly. Until then, the explicit fallback is:
+The package is installed editable by `uv sync`, so commands can run through
+`uv run` without activating the environment. Optional future-facing groups are
+installed only when needed:
+
+```bash
+uv sync --group notebooks
+uv sync --group ml
+```
+
+The explicit fallback for a manually managed environment is:
 
 ```bash
 export PYTHONPATH=src
@@ -18,11 +26,11 @@ export PYTHONPATH=src
 ## Run Simulations
 
 ```bash
-python scripts/run_basic_simulation.py
-python scripts/compare_throttle_levels.py
-python scripts/run_landing_experiment.py
-python scripts/run_heuristic_landing.py
-python scripts/run_heuristic_landing_v2.py
+uv run python scripts/run_basic_simulation.py
+uv run python scripts/compare_throttle_levels.py
+uv run python scripts/run_landing_experiment.py
+uv run python scripts/run_heuristic_landing.py
+uv run python scripts/run_heuristic_landing_v2.py
 ```
 
 ## Regenerate Reports
@@ -30,10 +38,11 @@ python scripts/run_heuristic_landing_v2.py
 These commands intentionally update curated files in `docs/results/`:
 
 ```bash
-python scripts/generate_throttle_report.py
-python scripts/generate_trajectory_report.py
-python scripts/generate_landing_report.py
-python scripts/generate_heuristic_landing_v2_report.py
+uv run python scripts/generate_throttle_report.py
+uv run python scripts/generate_trajectory_report.py
+uv run python scripts/generate_landing_report.py
+uv run python scripts/generate_heuristic_landing_v2_report.py
+uv run python scripts/generate_numerical_validation_report.py
 ```
 
 Review the generated diff before committing results.
@@ -41,8 +50,11 @@ Review the generated diff before committing results.
 ## Run Tests
 
 ```bash
-pytest -q
+uv run pytest -q
 ```
+
+GitHub Actions runs the same locked test command for every push and pull request
+to `main`.
 
 ## Results And Outputs
 

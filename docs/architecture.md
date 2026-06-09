@@ -9,6 +9,8 @@
 - environment: landing outcome evaluation
 - control: heuristic landing controllers
 - simulation: Euler-integrated basic rocket simulator
+- telemetry: reusable, dataframe-backed telemetry recorder
+- visualization: reusable 3D phase-space and controller-state plots
 
 ## Planned Layers
 
@@ -18,13 +20,13 @@
 - control: PID, neural controllers, and reinforcement learning agents
 - models: PyTorch models and checkpoints
 - training: training loops, evaluators, losses, and replay buffers
-- telemetry: reusable metrics, logs, and database integration
-- visualization: reusable plots, 3D animations, and dashboards
+- telemetry: persistent metrics, logs, and database integration
+- visualization: 3D animations and dashboards
 
 ## Simulation Loop
 
-Initial State -> Controller or Fixed Throttle -> Engine and Gravity -> Simulator Step -> Updated State -> Evaluation and Telemetry
+YAML Scenario -> Initial State -> Controller or Fixed Throttle -> Engine and Gravity -> Simulator Step -> Updated State -> Evaluation and Telemetry
 
 ## Engineering Rule
 
-Physics, control, training, telemetry, and visualization should remain independently testable. Current scripts still coordinate telemetry and plots; these responsibilities can move into reusable modules as their interfaces stabilize.
+Physics, control, scenario construction, telemetry, and visualization remain independently testable. Scripts coordinate experiments and report generation through these reusable library contracts.

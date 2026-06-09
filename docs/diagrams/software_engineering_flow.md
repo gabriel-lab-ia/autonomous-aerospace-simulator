@@ -2,15 +2,18 @@
 
 ```mermaid
 flowchart TD
-    A[Configuration Files] --> B[Initial Rocket State]
-    B --> C[Rocket Engine]
-    C --> D[Physics Engine]
-    D --> E[Simulator Step]
-    E --> F[Updated Rocket State]
-    F --> G[Telemetry and Metrics]
-    G --> H[CSV Results]
-    G --> I[Plots]
-    G --> J[Markdown Report]
+    A[Configuration YAML] --> B[SimulationScenario]
+    B --> C[Initial Rocket State]
+    B --> D[BasicRocketSimulator]
+    C --> E[Controller or Fixed Throttle]
+    E --> D
+    D --> F[Updated Rocket State]
+    F --> G[TelemetryRecorder]
+    F --> H[LandingEvaluation]
+    G --> I[CSV Results]
+    G --> J[2D and 3D Plots]
+    I --> K[Markdown Report]
+    J --> K
 ```
 
-The current experiment scripts coordinate this flow. Reusable telemetry and visualization modules are planned but not implemented yet.
+Experiment scripts coordinate this flow while scenario, telemetry, physics, and visualization remain reusable library modules.

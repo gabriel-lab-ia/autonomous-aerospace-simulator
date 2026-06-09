@@ -21,8 +21,8 @@ The current simulator is a deterministic educational baseline, not a high-fideli
 
 ## Platform And Operations
 
-- YAML configuration loading exists, but current experiment scripts still repeat several parameters.
-- Telemetry is held in dataframes and CSV files; there is no telemetry database yet.
+- The current vertical scenario is centralized in YAML; controller-specific tuning remains in controller classes.
+- Telemetry uses a reusable dataframe-backed recorder and CSV files; there is no telemetry database yet.
 - There is no API, web service, Docker image, Kubernetes deployment, or automated training pipeline.
 - The repository does not currently claim flightworthiness or real-world control suitability.
 

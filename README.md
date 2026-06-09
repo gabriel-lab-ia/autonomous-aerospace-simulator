@@ -1,5 +1,7 @@
 # Autonomous Aerospace Simulator
 
+[![CI](https://github.com/gabriel-lab-ia/autonomous-aerospace-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/gabriel-lab-ia/autonomous-aerospace-simulator/actions/workflows/ci.yml)
+
 A simplified aerospace simulation project for studying rocket landing dynamics and autonomous control.
 
 ## Core Objective
@@ -15,8 +17,10 @@ The current implementation models deterministic vertical motion using gravity, m
 - fixed-throttle experiments
 - landing outcome evaluation
 - heuristic landing controllers V1 and V2
-- CSV telemetry, PNG plots, and Markdown reports
+- reusable YAML scenario construction and standardized telemetry
+- CSV telemetry, 2D/3D PNG plots, and Markdown reports
 - reproducible Python environment managed with `uv`
+- automated pytest validation with GitHub Actions
 
 ## Technical Stack
 
@@ -28,16 +32,37 @@ The current implementation models deterministic vertical motion using gravity, m
 
 PyTorch, CUDA-oriented training, SQLite telemetry, and deployment services are planned capabilities and are not integrated into the current simulation loop.
 
+## Engineering Architecture
+
+The project keeps scenario construction, physical integration, control,
+telemetry, visualization, and reporting independently testable.
+
+```mermaid
+flowchart LR
+    CFG[YAML Scenario] --> STATE[Initial State]
+    CFG --> SIM[Simulator]
+    STATE --> CTRL[Controller]
+    CTRL --> ACTION[Throttle]
+    ACTION --> SIM
+    SIM --> NEXT[Next State]
+    NEXT --> TELEMETRY[Telemetry]
+    NEXT --> EVAL[Landing Evaluation]
+    TELEMETRY --> RESULTS[CSV + 2D/3D Plots + Reports]
+```
+
+- [Current Architecture](docs/diagrams/current_architecture.md)
+- [Verification Pipeline](docs/diagrams/verification_pipeline.md)
+
 ## Quick Start
 
 ```bash
 uv sync
-source .venv/bin/activate
-python scripts/run_basic_simulation.py
-pytest -q
+uv run python scripts/run_basic_simulation.py
+uv run pytest -q
 ```
 
-Until the package is installed editable, scripts can also be run explicitly with:
+`uv sync` installs the package editable. For a manually managed environment,
+scripts can also be run explicitly with:
 
 ```bash
 PYTHONPATH=src python scripts/run_basic_simulation.py
@@ -56,17 +81,17 @@ See [Reproducibility](docs/reproducibility.md) for all experiment and report-gen
 ## Action Vector
 
 - throttle
-- gimbal_x
-- gimbal_y
+
+Gimbal commands are reserved for a future rotational-dynamics model.
 
 ## Roadmap
 
-1. Strengthen physics contracts and automated tests
-2. Consolidate scenario configuration and telemetry
-3. Implement and benchmark a classical PID controller
+1. Implement and benchmark a classical PID controller
+2. Compare fixed throttle, Heuristic V1, Heuristic V2, and PID
+3. Add precise ground-contact interpolation and stronger physics validation
 4. Add a neural controller baseline
 5. Expose the landing task as a reinforcement learning environment
-6. Add telemetry database and 3D visualization
+6. Add telemetry database, 3D animations, and dashboards
 7. Add FastAPI, Docker, and Kubernetes deployment layers
 
 ## Current Limitations
@@ -90,6 +115,37 @@ Detailed report:
 - [Throttle Comparison Report](docs/results/throttle_comparison.md)
 - [Software Engineering Flow](docs/diagrams/software_engineering_flow.md)
 - [Physics and Control Loop](docs/diagrams/physics_control_loop.md)
+
+## Numerical Validation Matrices
+
+The automated tests validate the contracts behind the numerical state and
+transition matrices. The generated report explains every value and can be
+regenerated from the default YAML scenario.
+
+### Initial State Vector (13 x 1)
+
+| Index range | Components | Default values |
+|---|---|---|
+| 0-2 | position `(x, y, z)` m | `(0, 0, 100)` |
+| 3-5 | velocity `(vx, vy, vz)` m/s | `(0, 0, -10)` |
+| 6-8 | orientation `(roll, pitch, yaw)` rad | `(0, 0, 0)` |
+| 9-11 | angular velocity `(x, y, z)` rad/s | `(0, 0, 0)` |
+| 12 | fuel mass kg | `800` |
+
+### One-Step Transition Matrix (`dt = 0.02 s`)
+
+| Throttle | Next altitude (m) | Next vertical velocity (m/s) | Next fuel mass (kg) |
+|---:|---:|---:|---:|
+| 0.0 | 99.796077 | -10.196133 | 800.000 |
+| 0.5 | 99.799577 | -10.021133 | 799.975 |
+| 1.0 | 99.803077 | -9.846133 | 799.950 |
+
+The rows share the same initial state. Increasing throttle raises net
+acceleration and fuel consumption; gravity remains active in every row.
+
+- [Complete Numerical Validation Report](docs/results/numerical_validation.md)
+- [Initial State Vector CSV](docs/results/initial_state_vector.csv)
+- [One-Step Transition Matrix CSV](docs/results/one_step_transition_matrix.csv)
 
 ## Results Preview
 
@@ -120,6 +176,13 @@ The simulator also records full time-series trajectories for altitude, vertical 
 
 ![Fuel mass over time](docs/results/trajectory_fuel_over_time.png)
 
+### Fixed-Throttle 3D Phase Space
+
+![Fixed-throttle 3D phase space](docs/results/trajectory_phase_space_3d.png)
+
+This R3 visualization uses time, altitude, and vertical velocity. It does not
+claim lateral motion that the current vertical model does not simulate.
+
 ## Landing Evaluation
 
 The simulator now evaluates fixed-throttle landing attempts as `landed`, `crashed`, or `still_flying`.
@@ -135,6 +198,10 @@ This experiment shows that fixed throttle cannot solve the landing task by itsel
 ### Final Vertical Velocity by Throttle
 
 ![Landing velocity by throttle](docs/results/landing_velocity_by_throttle.png)
+
+### Fixed-Throttle 3D Landing Outcomes
+
+![Fixed-throttle 3D landing outcomes](docs/results/landing_summary_3d.png)
 
 ## Heuristic Landing Controller V2
 
@@ -154,6 +221,10 @@ This failed-control experiment is documented because it motivates the next step:
 ### Heuristic V2 Throttle Over Time
 
 ![Heuristic V2 throttle](docs/results/heuristic_v2_throttle_over_time.png)
+
+### Heuristic V2 3D Controller State
+
+![Heuristic V2 3D controller state](docs/results/heuristic_v2_control_state_3d.png)
 
 ## Results Policy
 
