@@ -102,3 +102,22 @@ This experiment shows that fixed throttle cannot solve the landing task by itsel
 ### Final Vertical Velocity by Throttle
 
 ![Landing velocity by throttle](docs/results/landing_velocity_by_throttle.png)
+
+## Heuristic Landing Controller V2
+
+The second heuristic landing controller was tested as a dynamic state-based control policy.
+
+The result shows a runaway ascent failure mode: the controller becomes too aggressive, keeps throttle near maximum, and drives the rocket far above the landing zone.
+
+This failed-control experiment is documented because it motivates the next step: PID control and smoother throttle regulation.
+
+- [Heuristic Controller V2 Report](docs/results/heuristic_v2_report.md)
+- [Heuristic Controller V2 Telemetry](docs/results/heuristic_v2_telemetry.csv)
+
+### Heuristic V2 Altitude Over Time
+
+![Heuristic V2 altitude](docs/results/heuristic_v2_altitude_over_time.png)
+
+### Heuristic V2 Throttle Over Time
+
+![Heuristic V2 throttle](docs/results/heuristic_v2_throttle_over_time.png)
