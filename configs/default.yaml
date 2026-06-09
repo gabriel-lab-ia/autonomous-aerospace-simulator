@@ -1,0 +1,38 @@
+project:
+  name: autonomous-aerospace-simulator
+  version: 0.1.0
+  mode: development
+
+simulation:
+  dt: 0.02
+  max_steps: 3000
+  seed: 42
+
+environment:
+  gravity:
+    x: 0.0
+    y: 0.0
+    z: -9.80665
+  landing_pad:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    radius: 5.0
+  wind:
+    enabled: false
+    x: 0.0
+    y: 0.0
+    z: 0.0
+
+rocket:
+  dry_mass: 1200.0
+  fuel_mass: 800.0
+  max_thrust: 35000.0
+  fuel_burn_rate: 2.5
+  max_gimbal_angle_deg: 15.0
+
+training:
+  device: cuda
+  episodes: 1000
+  batch_size: 256
+  learning_rate: 0.0003
