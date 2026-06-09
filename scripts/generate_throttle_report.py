@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from aerospace_sim.core.state import RocketState
+from aerospace_sim.simulation.runner import run_scenario
 from aerospace_sim.simulation.scenario import SimulationScenario
 from aerospace_sim.visualization.dark_style import COLORS, save_dark_figure, style_axis
 
@@ -13,13 +14,8 @@ RESULTS_DIR = Path("docs/results")
 
 def run_simulation(throttle: float, steps: int = 100) -> RocketState:
     scenario = SimulationScenario.from_yaml()
-    state = scenario.create_initial_state()
-    simulator = scenario.create_simulator()
-
-    for _ in range(steps):
-        state = simulator.step(state, throttle=throttle)
-
-    return state
+    run = run_scenario(scenario, fixed_throttle=throttle, max_steps=steps)
+    return run.final_state
 
 
 def generate_results() -> pd.DataFrame:

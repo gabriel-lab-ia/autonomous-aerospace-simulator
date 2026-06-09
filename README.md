@@ -91,6 +91,7 @@ flowchart LR
 
 - [Current Architecture](docs/diagrams/current_architecture.md)
 - [Verification Pipeline](docs/diagrams/verification_pipeline.md)
+- [Configuration And Telemetry Contracts](docs/configuration_and_telemetry.md)
 
 ## Quick Start
 

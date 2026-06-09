@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -66,6 +66,16 @@ class SimulationScenario:
             raise ValueError("Rocket fuel_burn_rate cannot be negative.")
         if self.initial_altitude_m < 0.0:
             raise ValueError("Initial altitude cannot be negative.")
+
+    def with_overrides(self, **changes: float | int) -> "SimulationScenario":
+        """Create a validated scenario derived from this configuration."""
+        scenario = replace(self, **changes)
+        scenario.validate()
+        return scenario
+
+    def to_dict(self) -> dict[str, float | int]:
+        """Return a serializable snapshot of the active simulation parameters."""
+        return asdict(self)
 
     def create_initial_state(self) -> RocketState:
         return RocketState(

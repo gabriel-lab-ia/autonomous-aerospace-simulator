@@ -2,6 +2,7 @@ import pandas as pd
 
 from aerospace_sim.core.state import RocketState
 from aerospace_sim.environment.landing import evaluate_landing
+from aerospace_sim.simulation.runner import run_scenario
 from aerospace_sim.simulation.scenario import SimulationScenario
 
 
@@ -10,16 +11,13 @@ def run_until_terminal(
     max_steps: int | None = None,
 ) -> tuple[RocketState, str]:
     scenario = SimulationScenario.from_yaml()
-    state = scenario.create_initial_state()
-    simulator = scenario.create_simulator()
-
-    for _ in range(max_steps or scenario.max_steps):
-        state = simulator.step(state, throttle=throttle)
-
-        if state.altitude <= 0.0:
-            return state, "ground_contact"
-
-    return state, "max_steps_reached"
+    run = run_scenario(
+        scenario,
+        fixed_throttle=throttle,
+        max_steps=max_steps,
+        stop_on_ground=True,
+    )
+    return run.final_state, run.terminal_reason
 
 
 def main() -> None:

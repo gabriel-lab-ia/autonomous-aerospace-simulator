@@ -6,8 +6,8 @@ import pandas as pd
 from aerospace_sim.control.heuristic_landing_controller_v2 import HeuristicLandingController
 from aerospace_sim.core.state import RocketState
 from aerospace_sim.environment.landing import evaluate_landing
+from aerospace_sim.simulation.runner import run_scenario
 from aerospace_sim.simulation.scenario import SimulationScenario
-from aerospace_sim.telemetry.recorder import TelemetryRecorder
 from aerospace_sim.visualization.dark_style import COLORS, save_dark_figure, style_axis
 from aerospace_sim.visualization.phase_space import (
     save_control_state_3d,
@@ -20,25 +20,17 @@ RESULTS_DIR = Path("docs/results")
 
 def run_experiment(max_steps: int | None = None) -> tuple[RocketState, pd.DataFrame]:
     scenario = SimulationScenario.from_yaml()
-    state = scenario.create_initial_state()
-    simulator = scenario.create_simulator()
     controller = HeuristicLandingController(
         dry_mass=scenario.dry_mass,
         max_thrust=scenario.max_thrust,
     )
-    recorder = TelemetryRecorder()
-
-    for step in range(max_steps or scenario.max_steps):
-        throttle = controller.compute_throttle(state)
-
-        recorder.record(step, state, throttle)
-
-        state = simulator.step(state, throttle=throttle)
-
-        if state.altitude <= 0.0:
-            break
-
-    return state, recorder.to_dataframe()
+    run = run_scenario(
+        scenario,
+        controller=controller,
+        max_steps=max_steps,
+        stop_on_ground=True,
+    )
+    return run.final_state, run.telemetry.to_dataframe()
 
 
 def save_altitude_plot(df: pd.DataFrame) -> None:

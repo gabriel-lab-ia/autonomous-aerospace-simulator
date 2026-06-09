@@ -7,6 +7,19 @@ import pandas as pd
 from aerospace_sim.core.state import RocketState
 
 
+TELEMETRY_COLUMNS = (
+    "step",
+    "time_s",
+    "altitude_m",
+    "position_x_m",
+    "position_y_m",
+    "velocity_z_m_s",
+    "speed_m_s",
+    "fuel_mass_kg",
+    "throttle",
+)
+
+
 @dataclass(frozen=True)
 class TelemetryRecord:
     step: int
@@ -50,5 +63,11 @@ class TelemetryRecorder:
     def records(self) -> tuple[TelemetryRecord, ...]:
         return tuple(self._records)
 
+    def __len__(self) -> int:
+        return len(self._records)
+
     def to_dataframe(self) -> pd.DataFrame:
-        return pd.DataFrame(record.to_dict() for record in self._records)
+        return pd.DataFrame(
+            (record.to_dict() for record in self._records),
+            columns=TELEMETRY_COLUMNS,
+        )

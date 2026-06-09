@@ -47,6 +47,13 @@ uv run python scripts/generate_numerical_validation_report.py
 
 Review the generated diff before committing results.
 
+## Configuration And Telemetry
+
+Scripts and API routes use the same validated `SimulationScenario`, shared
+simulation runner, and stable telemetry schema. See
+[Configuration And Telemetry Contracts](configuration_and_telemetry.md) for
+the active YAML fields, override behavior, and future PID integration point.
+
 ## Run Tests
 
 ```bash

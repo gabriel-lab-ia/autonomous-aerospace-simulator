@@ -1,17 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Protocol
+from typing import Any
 
 from aerospace_sim.control.heuristic_landing_controller import HeuristicLandingController
 from aerospace_sim.core.state import RocketState
 from aerospace_sim.environment.landing import evaluate_landing
+from aerospace_sim.simulation.runner import ThrottleController, run_scenario
 from aerospace_sim.simulation.scenario import SimulationScenario
-from aerospace_sim.telemetry.recorder import TelemetryRecord, TelemetryRecorder
-
-
-class ThrottleController(Protocol):
-    def compute_throttle(self, state: RocketState) -> float: ...
+from aerospace_sim.telemetry.recorder import TelemetryRecord
 
 
 @dataclass(frozen=True)
@@ -41,24 +38,26 @@ def run_basic_simulation(
         max_steps=steps,
         dt=dt,
     )
-    initial_state = scenario.create_initial_state()
-    state = initial_state.copy()
-    simulator = scenario.create_simulator()
-    recorder = TelemetryRecorder()
-
-    for step in range(steps):
-        recorder.record(step, state, throttle)
-        state = simulator.step(state, throttle)
-    recorder.record(steps, state, throttle)
+    run = run_scenario(
+        scenario,
+        fixed_throttle=throttle,
+        max_steps=steps,
+        record_final_state=True,
+    )
 
     return SimulationExecution(
         simulation_type="basic",
         status="completed",
         reason=None,
-        initial_state=initial_state,
-        final_state=state,
-        telemetry=recorder.records,
-        metadata_json={"throttle": throttle, "steps": steps, "dt": dt},
+        initial_state=run.initial_state,
+        final_state=run.final_state,
+        telemetry=run.telemetry.records,
+        metadata_json={
+            "throttle": throttle,
+            "steps": steps,
+            "dt": dt,
+            "scenario": scenario.to_dict(),
+        },
     )
 
 
@@ -121,22 +120,21 @@ def _run_landing(
         max_steps=max_steps,
         dt=dt,
     )
-    initial_state = scenario.create_initial_state()
-    state = initial_state.copy()
-    simulator = scenario.create_simulator()
-    recorder = TelemetryRecorder()
-    throttle = fixed_throttle or 0.0
-
-    for step in range(max_steps):
-        throttle = controller.compute_throttle(state) if controller else throttle
-        recorder.record(step, state, throttle)
-        state = simulator.step(state, throttle)
-        if state.altitude <= 0.0:
-            break
-    recorder.record(len(recorder.records), state, throttle)
-
-    evaluation = evaluate_landing(state)
-    metadata: dict[str, Any] = {"max_steps": max_steps, "dt": dt}
+    run = run_scenario(
+        scenario,
+        controller=controller,
+        fixed_throttle=fixed_throttle,
+        max_steps=max_steps,
+        stop_on_ground=True,
+        record_final_state=True,
+    )
+    evaluation = evaluate_landing(run.final_state)
+    metadata: dict[str, Any] = {
+        "max_steps": max_steps,
+        "dt": dt,
+        "terminal_reason": run.terminal_reason,
+        "scenario": scenario.to_dict(),
+    }
     if fixed_throttle is not None:
         metadata["throttle"] = fixed_throttle
     if controller is not None:
@@ -146,9 +144,9 @@ def _run_landing(
         simulation_type=simulation_type,
         status=evaluation.status.value,
         reason=evaluation.reason,
-        initial_state=initial_state,
-        final_state=state,
-        telemetry=recorder.records,
+        initial_state=run.initial_state,
+        final_state=run.final_state,
+        telemetry=run.telemetry.records,
         metadata_json=metadata,
     )
 
@@ -161,16 +159,10 @@ def _build_scenario(
     max_steps: int,
     dt: float,
 ) -> SimulationScenario:
-    defaults = SimulationScenario.from_yaml()
-    scenario = SimulationScenario(
+    return SimulationScenario.from_yaml().with_overrides(
         dt=dt,
         max_steps=max_steps,
-        dry_mass=defaults.dry_mass,
         fuel_mass=initial_fuel_mass_kg,
-        max_thrust=defaults.max_thrust,
-        fuel_burn_rate=defaults.fuel_burn_rate,
         initial_altitude_m=initial_altitude_m,
         initial_vertical_velocity_m_s=initial_vertical_velocity_m_s,
     )
-    scenario.validate()
-    return scenario

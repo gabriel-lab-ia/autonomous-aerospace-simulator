@@ -3,8 +3,8 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from aerospace_sim.simulation.runner import run_scenario
 from aerospace_sim.simulation.scenario import SimulationScenario
-from aerospace_sim.telemetry.recorder import TelemetryRecorder
 from aerospace_sim.visualization.dark_style import COLORS, save_dark_figure, style_axis
 from aerospace_sim.visualization.phase_space import save_trajectory_phase_space_3d
 
@@ -14,17 +14,13 @@ RESULTS_DIR = Path("docs/results")
 
 def run_trajectory(throttle: float, steps: int = 100) -> list[dict[str, float]]:
     scenario = SimulationScenario.from_yaml()
-    state = scenario.create_initial_state()
-    simulator = scenario.create_simulator()
-    recorder = TelemetryRecorder()
-
-    for step in range(steps + 1):
-        recorder.record(step, state, throttle)
-
-        if step < steps:
-            state = simulator.step(state, throttle=throttle)
-
-    return recorder.to_dataframe().to_dict(orient="records")
+    run = run_scenario(
+        scenario,
+        fixed_throttle=throttle,
+        max_steps=steps,
+        record_final_state=True,
+    )
+    return run.telemetry.to_dataframe().to_dict(orient="records")
 
 
 def generate_trajectory_dataframe() -> pd.DataFrame:

@@ -99,6 +99,8 @@ async def test_basic_simulation_is_persisted_with_telemetry(
     simulation = response.json()
     assert simulation["simulation_type"] == "basic"
     assert simulation["status"] == "completed"
+    assert simulation["metadata_json"]["scenario"]["dt"] == 0.02
+    assert simulation["metadata_json"]["scenario"]["max_steps"] == 5
 
     simulation_id = simulation["id"]
     telemetry_response = await client.get(

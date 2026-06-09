@@ -1,16 +1,15 @@
 from aerospace_sim.core.state import RocketState
+from aerospace_sim.simulation.runner import run_scenario
 from aerospace_sim.simulation.scenario import SimulationScenario
 
 
 def run_simulation(throttle: float, steps: int = 100) -> RocketState:
     scenario = SimulationScenario.from_yaml()
-    state = scenario.create_initial_state()
-    simulator = scenario.create_simulator()
-
-    for _ in range(steps):
-        state = simulator.step(state, throttle=throttle)
-
-    return state
+    return run_scenario(
+        scenario,
+        fixed_throttle=throttle,
+        max_steps=steps,
+    ).final_state
 
 
 def main() -> None:

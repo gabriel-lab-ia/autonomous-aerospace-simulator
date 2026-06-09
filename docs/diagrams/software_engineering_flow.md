@@ -3,17 +3,19 @@
 ```mermaid
 flowchart TD
     A[Configuration YAML] --> B[SimulationScenario]
-    B --> C[Initial Rocket State]
-    B --> D[BasicRocketSimulator]
-    C --> E[Controller or Fixed Throttle]
-    E --> D
-    D --> F[Updated Rocket State]
-    F --> G[TelemetryRecorder]
-    F --> H[LandingEvaluation]
-    G --> I[CSV Results]
-    G --> J[2D and 3D Plots]
-    I --> K[Markdown Report]
-    J --> K
+    B --> C[Validated Overrides]
+    C --> D[Shared Simulation Runner]
+    E[Controller or Fixed Throttle] --> D
+    D --> F[BasicRocketSimulator]
+    F --> G[Updated Rocket State]
+    G --> H[TelemetryRecorder]
+    G --> I[LandingEvaluation]
+    H --> J[SQL Telemetry]
+    H --> K[CSV Results]
+    H --> L[2D and 3D Plots]
+    K --> M[Markdown Report]
+    L --> M
 ```
 
-Experiment scripts coordinate this flow while scenario, telemetry, physics, and visualization remain reusable library modules.
+API routes and experiment scripts share this flow while scenario, execution,
+telemetry, physics, and visualization remain reusable library modules.
