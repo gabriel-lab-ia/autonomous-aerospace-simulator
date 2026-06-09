@@ -57,3 +57,13 @@ Detailed report:
 - [Throttle Comparison Report](docs/results/throttle_comparison.md)
 - [Software Engineering Flow](docs/diagrams/software_engineering_flow.md)
 - [Physics and Control Loop](docs/diagrams/physics_control_loop.md)
+
+## Results Preview
+
+### Final Altitude by Throttle Level
+
+![Final altitude by throttle](docs/results/throttle_final_altitude.png)
+
+### Final Vertical Velocity by Throttle Level
+
+![Final vertical velocity by throttle](docs/results/throttle_final_velocity.png)
