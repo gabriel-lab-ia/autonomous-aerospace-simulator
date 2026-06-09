@@ -6,6 +6,7 @@ import pandas as pd
 from aerospace_sim.core.state import RocketState
 from aerospace_sim.environment.landing import evaluate_landing
 from aerospace_sim.simulation.scenario import SimulationScenario
+from aerospace_sim.visualization.dark_style import COLORS, save_dark_figure, style_axis
 from aerospace_sim.visualization.phase_space import save_landing_summary_3d
 
 
@@ -63,31 +64,35 @@ def save_status_plot(df: pd.DataFrame) -> None:
     plot_df = df.copy()
     plot_df["status_code"] = plot_df["status"].map(status_map)
 
-    plt.figure(figsize=(9, 5))
-    plt.bar(plot_df["throttle"].astype(str), plot_df["status_code"])
-    plt.title("Landing Status by Fixed Throttle Level")
-    plt.xlabel("Throttle")
-    plt.ylabel("Status code")
-    plt.yticks(
+    figure, axis = plt.subplots(figsize=(9, 5))
+    axis.bar(
+        plot_df["throttle"].astype(str),
+        plot_df["status_code"],
+        color=COLORS,
+    )
+    axis.set_title("Landing Status by Fixed Throttle Level")
+    axis.set_xlabel("Throttle")
+    axis.set_ylabel("Status code")
+    axis.set_yticks(
         [0, 1, 2],
         ["crashed", "landed", "still_flying"],
     )
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "landing_status_by_throttle.png", dpi=160)
-    plt.close()
+    style_axis(axis, grid=False)
+    save_dark_figure(figure, RESULTS_DIR / "landing_status_by_throttle.png")
+    plt.close(figure)
 
 
 def save_velocity_plot(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(9, 5))
-    plt.bar(df["throttle"].astype(str), df["final_velocity_z_m_s"])
-    plt.axhline(y=-2.0, linestyle="--", linewidth=1)
-    plt.axhline(y=2.0, linestyle="--", linewidth=1)
-    plt.title("Final Vertical Velocity by Fixed Throttle Level")
-    plt.xlabel("Throttle")
-    plt.ylabel("Final vertical velocity (m/s)")
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "landing_velocity_by_throttle.png", dpi=160)
-    plt.close()
+    figure, axis = plt.subplots(figsize=(9, 5))
+    axis.bar(df["throttle"].astype(str), df["final_velocity_z_m_s"], color=COLORS)
+    axis.axhline(y=-2.0, color="#FF4D8D", linestyle="--", linewidth=1)
+    axis.axhline(y=2.0, color="#7CFF6B", linestyle="--", linewidth=1)
+    axis.set_title("Final Vertical Velocity by Fixed Throttle Level")
+    axis.set_xlabel("Throttle")
+    axis.set_ylabel("Final vertical velocity (m/s)")
+    style_axis(axis, grid=False)
+    save_dark_figure(figure, RESULTS_DIR / "landing_velocity_by_throttle.png")
+    plt.close(figure)
 
 
 def save_3d_summary_plot(df: pd.DataFrame) -> None:

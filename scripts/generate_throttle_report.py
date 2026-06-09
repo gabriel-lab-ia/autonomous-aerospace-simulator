@@ -5,6 +5,7 @@ import pandas as pd
 
 from aerospace_sim.core.state import RocketState
 from aerospace_sim.simulation.scenario import SimulationScenario
+from aerospace_sim.visualization.dark_style import COLORS, save_dark_figure, style_axis
 
 
 RESULTS_DIR = Path("docs/results")
@@ -42,25 +43,25 @@ def generate_results() -> pd.DataFrame:
 
 
 def save_altitude_plot(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(8, 5))
-    plt.bar(df["throttle"].astype(str), df["final_altitude_m"])
-    plt.title("Final Altitude by Throttle Level")
-    plt.xlabel("Throttle")
-    plt.ylabel("Final altitude (m)")
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "throttle_final_altitude.png", dpi=160)
-    plt.close()
+    figure, axis = plt.subplots(figsize=(8, 5))
+    axis.bar(df["throttle"].astype(str), df["final_altitude_m"], color=COLORS[:3])
+    axis.set_title("Final Altitude by Throttle Level")
+    axis.set_xlabel("Throttle")
+    axis.set_ylabel("Final altitude (m)")
+    style_axis(axis, grid=False)
+    save_dark_figure(figure, RESULTS_DIR / "throttle_final_altitude.png")
+    plt.close(figure)
 
 
 def save_velocity_plot(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(8, 5))
-    plt.bar(df["throttle"].astype(str), df["final_velocity_z_m_s"])
-    plt.title("Final Vertical Velocity by Throttle Level")
-    plt.xlabel("Throttle")
-    plt.ylabel("Final vertical velocity (m/s)")
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "throttle_final_velocity.png", dpi=160)
-    plt.close()
+    figure, axis = plt.subplots(figsize=(8, 5))
+    axis.bar(df["throttle"].astype(str), df["final_velocity_z_m_s"], color=COLORS[:3])
+    axis.set_title("Final Vertical Velocity by Throttle Level")
+    axis.set_xlabel("Throttle")
+    axis.set_ylabel("Final vertical velocity (m/s)")
+    style_axis(axis, grid=False)
+    save_dark_figure(figure, RESULTS_DIR / "throttle_final_velocity.png")
+    plt.close(figure)
 
 
 def save_markdown_report(df: pd.DataFrame) -> None:

@@ -8,6 +8,7 @@ from aerospace_sim.core.state import RocketState
 from aerospace_sim.environment.landing import evaluate_landing
 from aerospace_sim.simulation.scenario import SimulationScenario
 from aerospace_sim.telemetry.recorder import TelemetryRecorder
+from aerospace_sim.visualization.dark_style import COLORS, save_dark_figure, style_axis
 from aerospace_sim.visualization.phase_space import (
     save_control_state_3d,
     save_trajectory_phase_space_3d,
@@ -41,47 +42,66 @@ def run_experiment(max_steps: int | None = None) -> tuple[RocketState, pd.DataFr
 
 
 def save_altitude_plot(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(9, 5))
-    plt.plot(df["time_s"], df["altitude_m"])
-    plt.title("Heuristic Controller V2 - Altitude Over Time")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Altitude (m)")
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "heuristic_v2_altitude_over_time.png", dpi=160)
-    plt.close()
+    save_time_series_plot(
+        df,
+        column="altitude_m",
+        title="Heuristic Controller V2 - Altitude Over Time",
+        ylabel="Altitude (m)",
+        output_name="heuristic_v2_altitude_over_time.png",
+        color=COLORS[0],
+    )
 
 
 def save_velocity_plot(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(9, 5))
-    plt.plot(df["time_s"], df["velocity_z_m_s"])
-    plt.title("Heuristic Controller V2 - Vertical Velocity Over Time")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Vertical velocity (m/s)")
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "heuristic_v2_velocity_over_time.png", dpi=160)
-    plt.close()
+    save_time_series_plot(
+        df,
+        column="velocity_z_m_s",
+        title="Heuristic Controller V2 - Vertical Velocity Over Time",
+        ylabel="Vertical velocity (m/s)",
+        output_name="heuristic_v2_velocity_over_time.png",
+        color=COLORS[1],
+    )
 
 
 def save_throttle_plot(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(9, 5))
-    plt.plot(df["time_s"], df["throttle"])
-    plt.title("Heuristic Controller V2 - Throttle Over Time")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Throttle")
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "heuristic_v2_throttle_over_time.png", dpi=160)
-    plt.close()
+    save_time_series_plot(
+        df,
+        column="throttle",
+        title="Heuristic Controller V2 - Throttle Over Time",
+        ylabel="Throttle",
+        output_name="heuristic_v2_throttle_over_time.png",
+        color=COLORS[2],
+    )
 
 
 def save_fuel_plot(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(9, 5))
-    plt.plot(df["time_s"], df["fuel_mass_kg"])
-    plt.title("Heuristic Controller V2 - Fuel Mass Over Time")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Fuel mass (kg)")
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "heuristic_v2_fuel_over_time.png", dpi=160)
-    plt.close()
+    save_time_series_plot(
+        df,
+        column="fuel_mass_kg",
+        title="Heuristic Controller V2 - Fuel Mass Over Time",
+        ylabel="Fuel mass (kg)",
+        output_name="heuristic_v2_fuel_over_time.png",
+        color=COLORS[3],
+    )
+
+
+def save_time_series_plot(
+    df: pd.DataFrame,
+    *,
+    column: str,
+    title: str,
+    ylabel: str,
+    output_name: str,
+    color: str,
+) -> None:
+    figure, axis = plt.subplots(figsize=(9, 5))
+    axis.plot(df["time_s"], df[column], color=color)
+    axis.set_title(title)
+    axis.set_xlabel("Time (s)")
+    axis.set_ylabel(ylabel)
+    style_axis(axis)
+    save_dark_figure(figure, RESULTS_DIR / output_name)
+    plt.close(figure)
 
 
 def save_3d_plots(df: pd.DataFrame) -> None:

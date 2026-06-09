@@ -5,6 +5,13 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 
+from aerospace_sim.visualization.dark_style import (
+    BACKGROUND,
+    FOREGROUND,
+    save_dark_figure,
+    style_3d_axis,
+)
+
 
 def save_trajectory_phase_space_3d(
     telemetry: pd.DataFrame,
@@ -36,8 +43,8 @@ def save_trajectory_phase_space_3d(
     axis.set_zlabel("Vertical velocity (m/s)")
     if group_column is not None:
         axis.legend(title=group_column)
-    figure.tight_layout()
-    figure.savefig(output_path, dpi=160)
+    style_3d_axis(axis)
+    save_dark_figure(figure, output_path)
     plt.close(figure)
 
 
@@ -61,9 +68,12 @@ def save_control_state_3d(
     axis.set_xlabel("Altitude (m)")
     axis.set_ylabel("Vertical velocity (m/s)")
     axis.set_zlabel("Throttle")
-    figure.colorbar(points, ax=axis, label="Time (s)", shrink=0.7)
-    figure.tight_layout()
-    figure.savefig(output_path, dpi=160)
+    colorbar = figure.colorbar(points, ax=axis, label="Time (s)", shrink=0.7)
+    colorbar.ax.set_facecolor(BACKGROUND)
+    colorbar.ax.tick_params(colors=FOREGROUND)
+    colorbar.set_label("Time (s)", color=FOREGROUND)
+    style_3d_axis(axis)
+    save_dark_figure(figure, output_path)
     plt.close(figure)
 
 
@@ -87,7 +97,10 @@ def save_landing_summary_3d(
     axis.set_xlabel("Throttle")
     axis.set_ylabel("Final vertical velocity (m/s)")
     axis.set_zlabel("Final altitude (m)")
-    figure.colorbar(points, ax=axis, label="Final time (s)", shrink=0.7)
-    figure.tight_layout()
-    figure.savefig(output_path, dpi=160)
+    colorbar = figure.colorbar(points, ax=axis, label="Final time (s)", shrink=0.7)
+    colorbar.ax.set_facecolor(BACKGROUND)
+    colorbar.ax.tick_params(colors=FOREGROUND)
+    colorbar.set_label("Final time (s)", color=FOREGROUND)
+    style_3d_axis(axis)
+    save_dark_figure(figure, output_path)
     plt.close(figure)

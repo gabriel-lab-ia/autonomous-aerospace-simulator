@@ -74,6 +74,18 @@ async def test_protected_endpoint_requires_valid_api_key(
 
 
 @pytest.mark.anyio
+async def test_protected_endpoint_rejects_unconfigured_authentication(
+    client: httpx2.AsyncClient,
+    monkeypatch,
+) -> None:
+    monkeypatch.delenv("AEROSPACE_API_KEY")
+
+    response = await client.get("/simulations", headers=auth_headers())
+
+    assert response.status_code == 503
+
+
+@pytest.mark.anyio
 async def test_basic_simulation_is_persisted_with_telemetry(
     client: httpx2.AsyncClient,
 ) -> None:

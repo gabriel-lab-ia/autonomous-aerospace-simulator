@@ -61,6 +61,25 @@ Missing keys return `401`, invalid keys return `403`, and a server without
 `AEROSPACE_API_KEY` configured returns `503`. Keys are never returned or logged
 by application code.
 
+## Security Model
+
+- API keys are loaded from the environment and compared with
+  `secrets.compare_digest`.
+- `/health` is public; simulation and telemetry routes are protected.
+- Pydantic request schemas enforce bounded throttle, timestep, altitude, fuel,
+  velocity, and step-count values.
+- CORS is intentionally not enabled because the current service has no browser
+  client.
+- FastAPI's default production responses do not expose server stack traces.
+- `.env`, SQLite databases, runtime data, caches, and local outputs are ignored
+  by Git.
+- Interactive API documentation describes the header contract but never embeds
+  a configured secret.
+
+For deployment, use a secret manager or injected environment variable, rotate
+the API key, terminate TLS at a trusted reverse proxy, and migrate to
+PostgreSQL before introducing concurrent writers.
+
 ## API Examples
 
 Public health check:
@@ -161,3 +180,15 @@ uv run pytest -q
 API integration tests use a temporary SQLite database and verify public health,
 API key enforcement, request validation, simulation persistence, telemetry
 queries, and missing-resource responses.
+
+## Regenerate Curated Reports
+
+The report generators write reproducible Markdown, CSV, and dark-style PNG
+artifacts to `docs/results/`:
+
+```bash
+PYTHONPATH=src uv run python scripts/generate_throttle_report.py
+PYTHONPATH=src uv run python scripts/generate_trajectory_report.py
+PYTHONPATH=src uv run python scripts/generate_landing_report.py
+PYTHONPATH=src uv run python scripts/generate_heuristic_landing_v2_report.py
+```

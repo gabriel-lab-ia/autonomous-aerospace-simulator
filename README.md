@@ -1,9 +1,24 @@
-# Autonomous Aerospace Control
-<img width="1198" height="616" alt="WhatsApp Image 2026-06-09 at 15 41 43" src="https://github.com/user-attachments/assets/33e5ff6a-94fd-49a0-a093-23e3aaeab410" />
+# Autonomous Aerospace Simulator
 
-[![CI](https://github.com/gabriel-lab-ia/autonomous-aerospace-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/gabriel-lab-ia/autonomous-aerospace-simulator/actions/workflows/ci.yml)
+<p align="center">
+  <img width="100%" alt="Autonomous rocket landing platform" src="https://github.com/user-attachments/assets/33e5ff6a-94fd-49a0-a093-23e3aaeab410">
+</p>
 
-A simplified aerospace simulation project for studying rocket landing dynamics and autonomous control.
+<p align="center">
+  <a href="https://github.com/gabriel-lab-ia/autonomous-aerospace-simulator/actions/workflows/ci.yml">
+    <img src="https://github.com/gabriel-lab-ia/autonomous-aerospace-simulator/actions/workflows/ci.yml/badge.svg" alt="CI">
+  </a>
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white" alt="Python 3.11+">
+  <img src="https://img.shields.io/badge/FastAPI-secure_API-009688?logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/SQLAlchemy-SQL_telemetry-D71F00?logo=sqlalchemy&logoColor=white" alt="SQLAlchemy">
+  <img src="https://img.shields.io/badge/SQLite-local_DB-003B57?logo=sqlite&logoColor=white" alt="SQLite">
+  <img src="https://img.shields.io/badge/PostgreSQL-ready-4169E1?logo=postgresql&logoColor=white" alt="PostgreSQL ready">
+  <img src="https://img.shields.io/badge/Pytest-tested-0A9EDC?logo=pytest&logoColor=white" alt="Pytest">
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
+</p>
+
+A portfolio-grade aerospace simulation platform for rocket landing dynamics,
+autonomous control experiments, secure API execution, and SQL-backed telemetry.
 
 ## Core Objective
 
@@ -23,6 +38,8 @@ The current implementation models deterministic vertical motion using gravity, m
 - reproducible Python environment managed with `uv`
 - automated pytest validation with GitHub Actions
 - secure FastAPI service with SQL-backed simulation telemetry
+- API key authentication with bounded request schemas
+- SQLite local persistence and PostgreSQL-ready configuration
 
 ## Technical Stack
 
@@ -31,6 +48,9 @@ The current implementation models deterministic vertical motion using gravity, m
 - Matplotlib
 - Pandas
 - YAML configs
+- FastAPI and Pydantic
+- SQLAlchemy with SQLite and optional PostgreSQL
+- Pytest and GitHub Actions
 
 PyTorch, CUDA-oriented training, and container-orchestration deployment services are planned capabilities and are not integrated into the current simulation loop.
 
@@ -105,13 +125,14 @@ Gimbal commands are reserved for a future rotational-dynamics model.
 
 ## Roadmap
 
-1. Implement and benchmark a classical PID controller
+1. Implement and benchmark a classical PID landing controller
 2. Compare fixed throttle, Heuristic V1, Heuristic V2, and PID
 3. Add precise ground-contact interpolation and stronger physics validation
-4. Add a neural controller baseline
-5. Expose the landing task as a reinforcement learning environment
-6. Add telemetry database, 3D animations, and dashboards
-7. Add FastAPI, Docker, and Kubernetes deployment layers
+4. Add a Dockerfile and Docker Compose stack with API and PostgreSQL
+5. Build a telemetry visualization dashboard
+6. Expose the landing task as a reinforcement learning environment
+7. Add neural-controller training and experiment tracking
+8. Prepare a future Kubernetes deployment
 
 ## Current Limitations
 
@@ -167,6 +188,9 @@ acceleration and fuel consumption; gravity remains active in every row.
 - [One-Step Transition Matrix CSV](docs/results/one_step_transition_matrix.csv)
 
 ## Results Preview
+
+All curated report plots use a reproducible high-contrast dark visual style
+implemented in `aerospace_sim.visualization`.
 
 ### Final Altitude by Throttle Level
 

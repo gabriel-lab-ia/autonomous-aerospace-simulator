@@ -5,6 +5,7 @@ import pandas as pd
 
 from aerospace_sim.simulation.scenario import SimulationScenario
 from aerospace_sim.telemetry.recorder import TelemetryRecorder
+from aerospace_sim.visualization.dark_style import COLORS, save_dark_figure, style_axis
 from aerospace_sim.visualization.phase_space import save_trajectory_phase_space_3d
 
 
@@ -36,60 +37,63 @@ def generate_trajectory_dataframe() -> pd.DataFrame:
 
 
 def save_altitude_plot(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(9, 5))
+    figure, axis = plt.subplots(figsize=(9, 5))
 
-    for throttle, group in df.groupby("throttle"):
-        plt.plot(
+    for color, (throttle, group) in zip(COLORS, df.groupby("throttle")):
+        axis.plot(
             group["time_s"],
             group["altitude_m"],
             label=f"throttle={throttle}",
+            color=color,
         )
 
-    plt.title("Altitude Over Time by Throttle Level")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Altitude (m)")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "trajectory_altitude_over_time.png", dpi=160)
-    plt.close()
+    axis.set_title("Altitude Over Time by Throttle Level")
+    axis.set_xlabel("Time (s)")
+    axis.set_ylabel("Altitude (m)")
+    axis.legend()
+    style_axis(axis)
+    save_dark_figure(figure, RESULTS_DIR / "trajectory_altitude_over_time.png")
+    plt.close(figure)
 
 
 def save_velocity_plot(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(9, 5))
+    figure, axis = plt.subplots(figsize=(9, 5))
 
-    for throttle, group in df.groupby("throttle"):
-        plt.plot(
+    for color, (throttle, group) in zip(COLORS, df.groupby("throttle")):
+        axis.plot(
             group["time_s"],
             group["velocity_z_m_s"],
             label=f"throttle={throttle}",
+            color=color,
         )
 
-    plt.title("Vertical Velocity Over Time by Throttle Level")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Vertical velocity (m/s)")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "trajectory_velocity_over_time.png", dpi=160)
-    plt.close()
+    axis.set_title("Vertical Velocity Over Time by Throttle Level")
+    axis.set_xlabel("Time (s)")
+    axis.set_ylabel("Vertical velocity (m/s)")
+    axis.legend()
+    style_axis(axis)
+    save_dark_figure(figure, RESULTS_DIR / "trajectory_velocity_over_time.png")
+    plt.close(figure)
 
 
 def save_fuel_plot(df: pd.DataFrame) -> None:
-    plt.figure(figsize=(9, 5))
+    figure, axis = plt.subplots(figsize=(9, 5))
 
-    for throttle, group in df.groupby("throttle"):
-        plt.plot(
+    for color, (throttle, group) in zip(COLORS, df.groupby("throttle")):
+        axis.plot(
             group["time_s"],
             group["fuel_mass_kg"],
             label=f"throttle={throttle}",
+            color=color,
         )
 
-    plt.title("Fuel Mass Over Time by Throttle Level")
-    plt.xlabel("Time (s)")
-    plt.ylabel("Fuel mass (kg)")
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(RESULTS_DIR / "trajectory_fuel_over_time.png", dpi=160)
-    plt.close()
+    axis.set_title("Fuel Mass Over Time by Throttle Level")
+    axis.set_xlabel("Time (s)")
+    axis.set_ylabel("Fuel mass (kg)")
+    axis.legend()
+    style_axis(axis)
+    save_dark_figure(figure, RESULTS_DIR / "trajectory_fuel_over_time.png")
+    plt.close(figure)
 
 
 def save_phase_space_plot(df: pd.DataFrame) -> None:
