@@ -1,7 +1,11 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "autonomous-aerospace-simulator"
 version = "0.1.0"
-description = "Add your description here"
+description = "Simplified aerospace simulator for rocket landing and autonomous control experiments"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -19,3 +23,11 @@ dependencies = [
     "torchvision>=0.27.0",
     "tqdm>=4.68.2",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
