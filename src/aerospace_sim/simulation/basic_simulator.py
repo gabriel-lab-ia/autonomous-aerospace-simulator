@@ -17,12 +17,22 @@ class BasicRocketSimulator:
     dt: float
 
     def total_mass(self, state: RocketState) -> float:
-        return self.dry_mass + state.fuel_mass
+        return self.dry_mass + max(0.0, state.fuel_mass)
 
     def step(self, state: RocketState, throttle: float) -> RocketState:
         mass = self.total_mass(state)
 
-        thrust = self.engine.compute_thrust(throttle)
+        planned_fuel_use = self.engine.compute_fuel_consumption(throttle, self.dt)
+        fuel_used = self.engine.compute_fuel_consumption(
+            throttle,
+            self.dt,
+            available_fuel=state.fuel_mass,
+        )
+
+        burn_fraction = fuel_used / planned_fuel_use if planned_fuel_use > 0.0 else 0.0
+        effective_throttle = self.engine.clamp_throttle(throttle) * burn_fraction
+
+        thrust = self.engine.compute_thrust(effective_throttle)
         weight = gravity_force(mass)
 
         net_force = thrust + weight
@@ -31,7 +41,6 @@ class BasicRocketSimulator:
         new_velocity = state.velocity + acceleration * self.dt
         new_position = state.position + new_velocity * self.dt
 
-        fuel_used = self.engine.compute_fuel_consumption(throttle, self.dt)
         new_fuel_mass = max(0.0, state.fuel_mass - fuel_used)
 
         if new_position.z < 0.0:
