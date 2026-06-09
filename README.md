@@ -1,4 +1,4 @@
-# Autonomous Aerospace Simulator
+# Autonomous Aerospace Control
 <img width="1198" height="616" alt="WhatsApp Image 2026-06-09 at 15 41 43" src="https://github.com/user-attachments/assets/33e5ff6a-94fd-49a0-a093-23e3aaeab410" />
 
 [![CI](https://github.com/gabriel-lab-ia/autonomous-aerospace-simulator/actions/workflows/ci.yml/badge.svg)](https://github.com/gabriel-lab-ia/autonomous-aerospace-simulator/actions/workflows/ci.yml)
