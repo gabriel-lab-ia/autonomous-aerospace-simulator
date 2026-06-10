@@ -1,4 +1,4 @@
-# Autonomous Aerospace Simulator
+# Autonomous Aerospace System 
 
 <p align="center">
   <img width="100%" alt="Autonomous rocket landing platform" src="https://github.com/user-attachments/assets/33e5ff6a-94fd-49a0-a093-23e3aaeab410">
