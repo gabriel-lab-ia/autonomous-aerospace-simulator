@@ -1,6 +1,6 @@
 from collections.abc import AsyncGenerator, Generator
 
-import httpx2
+import httpx
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
@@ -18,7 +18,7 @@ def anyio_backend() -> str:
 
 
 @pytest.fixture
-async def client(tmp_path, monkeypatch) -> AsyncGenerator[httpx2.AsyncClient, None]:
+async def client(tmp_path, monkeypatch) -> AsyncGenerator[httpx.AsyncClient, None]:
     database_path = tmp_path / "test.db"
     engine = create_engine(
         f"sqlite:///{database_path}",
@@ -36,8 +36,8 @@ async def client(tmp_path, monkeypatch) -> AsyncGenerator[httpx2.AsyncClient, No
 
     monkeypatch.setenv("AEROSPACE_API_KEY", TEST_API_KEY)
     app.dependency_overrides[get_db] = override_get_db
-    transport = httpx2.ASGITransport(app=app)
-    async with httpx2.AsyncClient(
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(
         transport=transport,
         base_url="http://testserver",
     ) as test_client:
@@ -52,7 +52,7 @@ def auth_headers() -> dict[str, str]:
 
 @pytest.mark.anyio
 async def test_health_is_public_and_database_is_available(
-    client: httpx2.AsyncClient,
+    client: httpx.AsyncClient,
 ) -> None:
     response = await client.get("/health")
 
@@ -66,7 +66,7 @@ async def test_health_is_public_and_database_is_available(
 
 @pytest.mark.anyio
 async def test_protected_endpoint_requires_valid_api_key(
-    client: httpx2.AsyncClient,
+    client: httpx.AsyncClient,
 ) -> None:
     assert (await client.get("/simulations")).status_code == 401
     invalid = await client.get("/simulations", headers={"X-API-Key": "invalid"})
@@ -75,7 +75,7 @@ async def test_protected_endpoint_requires_valid_api_key(
 
 @pytest.mark.anyio
 async def test_protected_endpoint_rejects_unconfigured_authentication(
-    client: httpx2.AsyncClient,
+    client: httpx.AsyncClient,
     monkeypatch,
 ) -> None:
     monkeypatch.delenv("AEROSPACE_API_KEY")
@@ -87,7 +87,7 @@ async def test_protected_endpoint_rejects_unconfigured_authentication(
 
 @pytest.mark.anyio
 async def test_basic_simulation_is_persisted_with_telemetry(
-    client: httpx2.AsyncClient,
+    client: httpx.AsyncClient,
 ) -> None:
     response = await client.post(
         "/simulations/basic",
@@ -117,7 +117,7 @@ async def test_basic_simulation_is_persisted_with_telemetry(
 
 @pytest.mark.anyio
 async def test_landing_and_heuristic_endpoints_persist_results(
-    client: httpx2.AsyncClient,
+    client: httpx.AsyncClient,
 ) -> None:
     landing = await client.post(
         "/simulations/landing",
@@ -138,7 +138,7 @@ async def test_landing_and_heuristic_endpoints_persist_results(
 
 @pytest.mark.anyio
 async def test_invalid_request_and_missing_resources_return_expected_statuses(
-    client: httpx2.AsyncClient,
+    client: httpx.AsyncClient,
 ) -> None:
     invalid = await client.post(
         "/simulations/basic",

@@ -33,6 +33,7 @@ The current implementation models deterministic vertical motion using gravity, m
 - fixed-throttle experiments
 - landing outcome evaluation
 - heuristic landing controllers V1 and V2
+- optional experimental neural controller integrated through the controller contract
 - reusable YAML scenario construction and standardized telemetry
 - CSV telemetry, 2D/3D PNG plots, and Markdown reports
 - reproducible Python environment managed with `uv`
@@ -52,7 +53,9 @@ The current implementation models deterministic vertical motion using gravity, m
 - SQLAlchemy with SQLite and optional PostgreSQL
 - Pytest and GitHub Actions
 
-PyTorch, CUDA-oriented training, and container-orchestration deployment services are planned capabilities and are not integrated into the current simulation loop.
+PyTorch is an optional dependency used for supervised neural-controller
+pretraining and experimental inference. Container-orchestration deployment
+services remain planned.
 
 ## Secure API And SQL Telemetry Layer
 
@@ -132,7 +135,7 @@ Gimbal commands are reserved for a future rotational-dynamics model.
 4. Add a Dockerfile and Docker Compose stack with API and PostgreSQL
 5. Build a telemetry visualization dashboard
 6. Expose the landing task as a reinforcement learning environment
-7. Add neural-controller training and experiment tracking
+7. Extend neural-controller evaluation toward simulator-in-the-loop learning
 8. Prepare a future Kubernetes deployment
 
 ## Current Limitations
@@ -140,6 +143,23 @@ Gimbal commands are reserved for a future rotational-dynamics model.
 The simulator is intentionally minimal and should not be treated as a high-fidelity aerospace model. It currently has no real rotational dynamics, aerodynamics, wind, gimbal actuation, or precise collision-time interpolation.
 
 See [Current Simulator Limitations](docs/limitations.md) for the complete scope and engineering implications.
+
+## Deep Neural Rocket Controller
+
+The optional neural layer provides supervised neural-controller pretraining on
+synthetic telemetry and experimental inference through the real simulator
+loop. This is a foundation for future simulator-in-the-loop reinforcement
+learning, not high-fidelity aerospace validation.
+
+### Parameter Metrics
+
+| Metric | Value |
+| --- | ---: |
+| Total trainable parameters | 586,630 |
+
+- [Deep Neural Controller Documentation](docs/neural_controller.md)
+- [Neural Controller Training Report](docs/results/neural_controller_training_report.md)
+- [Controller Comparison](docs/results/controller_comparison.md)
 
 ## Initial Results
 

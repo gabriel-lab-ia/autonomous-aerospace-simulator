@@ -5,7 +5,7 @@ flowchart LR
     YAML[configs/default.yaml] --> SC[SimulationScenario]
     SC --> STATE[RocketState]
     SC --> SIM[BasicRocketSimulator]
-    CTRL[Fixed Throttle or Heuristic Controller] --> ACTION[Throttle]
+    CTRL[Fixed Throttle, Heuristic, or Experimental Neural Controller] --> ACTION[Throttle]
     STATE --> CTRL
     ACTION --> SIM
     SIM --> PHYS[Engine + Gravity + Fuel]
@@ -18,5 +18,6 @@ flowchart LR
     PLOT --> REPORT
 ```
 
-The PID controller will enter through the same controller-to-throttle contract,
-without changing scenario construction, physics integration, or telemetry.
+The experimental neural controller and future PID controller use the same
+controller-to-throttle contract without changing scenario construction,
+physics integration, or telemetry. PyTorch remains optional.

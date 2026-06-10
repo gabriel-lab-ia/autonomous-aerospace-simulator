@@ -16,7 +16,9 @@ The current simulator is a deterministic educational baseline, not a high-fideli
 
 - Fixed-throttle and heuristic controllers are implemented.
 - No PID controller is implemented yet.
-- No neural controller or reinforcement learning environment is implemented yet.
+- An experimental supervised neural controller is integrated, but it has not
+  been validated as an effective landing controller.
+- No reinforcement learning environment is implemented yet.
 - Heuristic V1 and V2 are useful failure baselines, not successful landing solutions.
 
 ## Platform And Operations
