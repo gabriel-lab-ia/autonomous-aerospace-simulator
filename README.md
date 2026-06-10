@@ -45,6 +45,51 @@ The current implementation models deterministic vertical motion using gravity, m
 - API key authentication with bounded request schemas
 - SQLite local persistence and PostgreSQL-ready configuration
 
+## Control Engineering System
+
+The control layer is organized as an experimental engineering pipeline, not as
+an isolated notebook or a claim of flight-ready autonomy:
+
+```mermaid
+flowchart LR
+    CFG[YAML Scenario + PID Config] --> PHYSICS[Vertical Physics Simulation]
+    PHYSICS --> CONTRACT["compute_throttle(state) Contract"]
+    CONTRACT --> FIXED[Fixed Throttle]
+    CONTRACT --> H1[Heuristic V1]
+    CONTRACT --> H2[Heuristic V2]
+    CONTRACT --> PID[PID Baseline]
+    CONTRACT --> NEURAL[Optional Neural Controller]
+    FIXED --> TELEMETRY[Standardized Telemetry]
+    H1 --> TELEMETRY
+    H2 --> TELEMETRY
+    PID --> TELEMETRY
+    NEURAL --> TELEMETRY
+    TELEMETRY --> BENCHMARK[Shared-Scenario Benchmark]
+    BENCHMARK --> METRICS[CSV + JSON Metrics]
+    BENCHMARK --> REPORTS[Plots + Markdown Report]
+    TELEMETRY --> PREPROCESS[Neural Data Preprocessing]
+    PREPROCESS --> TRAIN[Supervised Imitation Training]
+    BENCHMARK -. future work .-> RL[RL Environment Plan]
+```
+
+| Controller | Engineering status | Benchmark result |
+| --- | --- | --- |
+| Fixed throttle | Implemented open-loop baseline | Crashed at `11.4050 m/s` |
+| Heuristic V1 | Implemented rule-based baseline | Still flying after `60 s` |
+| Heuristic V2 | Implemented rule-based failure baseline | Runaway ascent to `13,974.0973 m` |
+| PID | Implemented classical feedback baseline | Crashed at `3.4798 m/s`; improved but not safe |
+| Neural supervised | Experimental, optional PyTorch | Did not demonstrate landing |
+| Reinforcement learning | Future work only | Not executed |
+
+The PID baseline materially reduces impact speed relative to fixed throttle,
+but it does not satisfy the current safe-landing threshold. The neural
+controller and RL plan remain experimental. These results apply only to the
+simplified deterministic vertical simulator.
+
+- [Controller Implementation Status](docs/results/controller_comparison.md)
+- [Real Controller Trajectory Benchmark](docs/results/controller_trajectory_comparison.md)
+- [RL Environment Plan](docs/rl_environment_plan.md)
+
 ## Technical Stack
 
 - Python 3.11
@@ -86,13 +131,14 @@ telemetry, visualization, and reporting independently testable.
 flowchart LR
     CFG[YAML Scenario] --> STATE[Initial State]
     CFG --> SIM[Simulator]
-    STATE --> CTRL[Controller]
+    STATE --> CTRL[Fixed / Heuristic / PID / Neural Controller]
     CTRL --> ACTION[Throttle]
     ACTION --> SIM
     SIM --> NEXT[Next State]
     NEXT --> TELEMETRY[Telemetry]
     NEXT --> EVAL[Landing Evaluation]
-    TELEMETRY --> RESULTS[CSV + 2D/3D Plots + Reports]
+    TELEMETRY --> BENCHMARK[Controller Benchmark]
+    BENCHMARK --> RESULTS[CSV + JSON + Plots + Reports]
 ```
 
 - [Current Architecture](docs/diagrams/current_architecture.md)
@@ -102,9 +148,9 @@ flowchart LR
 ## Quick Start
 
 ```bash
-uv sync
-uv run python scripts/run_basic_simulation.py
+uv sync --locked --group dev
 uv run pytest -q
+uv run python scripts/benchmark_controllers.py
 ```
 
 `uv sync` installs the package editable. For a manually managed environment,
@@ -115,6 +161,46 @@ PYTHONPATH=src python scripts/run_basic_simulation.py
 ```
 
 See [Reproducibility](docs/reproducibility.md) for all experiment and report-generation commands.
+
+## Reproduce The Controller Benchmark
+
+All executed controllers use the same initial scenario whenever possible:
+altitude `100 m`, vertical velocity `-10 m/s`, time step `0.02 s`, and a
+maximum duration of `60 s`.
+
+```bash
+uv sync --locked --group dev
+uv run python scripts/benchmark_controllers.py
+```
+
+Generated raw artifacts:
+
+```text
+outputs/controller_benchmark/controller_comparison.csv
+outputs/controller_benchmark/controller_comparison.json
+outputs/controller_benchmark/trajectories/<controller_name>.csv
+outputs/controller_benchmark/figures/*.png
+```
+
+Small curated plots and the generated report are versioned under
+`docs/results/`.
+
+### Real Shared-Scenario Results
+
+| Controller | Status | Final altitude (m) | Final vertical velocity (m/s) | Fuel remaining (kg) | Mean throttle |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Fixed throttle | crashed | `0.0000` | `-11.4050` | `787.1850` | `0.5500` |
+| Heuristic V1 | still flying | `263.6417` | `3.0571` | `715.8963` | `0.5608` |
+| Heuristic V2 | still flying | `13,974.0973` | `489.5257` | `650.4656` | `0.9969` |
+| PID | crashed | `0.0000` | `-3.4798` | `784.9199` | `0.5949` |
+| Neural supervised | still flying | `1,739.5862` | `115.0260` | `700.6346` | `0.6625` |
+
+![Controller altitude comparison](docs/results/controller_altitude_comparison.png)
+
+![Controller velocity comparison](docs/results/controller_velocity_comparison.png)
+
+The benchmark is a software/control regression experiment. It is not
+high-fidelity aerospace validation.
 
 ## State Vector
 
@@ -159,6 +245,24 @@ reinforcement learning, not high-fidelity aerospace validation.
 | Metric | Value |
 | --- | ---: |
 | Total trainable parameters | 586,630 |
+
+### Simulator-Telemetry Training Pipeline
+
+The neural training path can extract accessible data from the benchmark
+trajectories, transform it into the existing 13-dimensional sensor/state
+schema, normalize the features, and run supervised imitation training:
+
+```bash
+uv sync --locked --group dev --group ml
+uv run python scripts/benchmark_controllers.py
+uv run python scripts/prepare_neural_training_data.py
+uv run python scripts/train_neural_controller.py \
+  --dataset outputs/neural_controller/preprocessed_controller_telemetry.csv
+```
+
+This pipeline was smoke-tested with `7,500` simulated telemetry rows. It uses
+simulator-derived data, not real aerospace flight data. PyTorch remains
+optional: the base CI environment runs without the ML group.
 
 - [Deep Neural Controller Documentation](docs/neural_controller.md)
 - [Neural Controller Training Report](docs/results/neural_controller_training_report.md)
