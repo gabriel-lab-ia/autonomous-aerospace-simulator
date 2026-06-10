@@ -1,0 +1,55 @@
+# Training configuration for optional neural-controller experiments.
+#
+# The current neural pipeline uses supervised pretraining on synthetic telemetry.
+# These settings are not reinforcement-learning hyperparameters yet.
+
+training:
+  seed: 42
+  device: auto
+
+  dataset:
+    source: synthetic
+    n_samples: 4096
+    validation_split: 0.2
+    input_features: 13
+    note: "Synthetic telemetry is used for supervised pretraining only."
+
+  dataloader:
+    train_batch_size: 128
+    validation_batch_size: 256
+    shuffle_train: true
+
+  model:
+    name: NeuralRocketControllerNet
+    hidden_dim: 512
+    latent_dim: 256
+    dropout: 0.05
+    trainable_parameters: 586630
+
+  optimizer:
+    name: AdamW
+    learning_rate: 0.0005
+    weight_decay: 0.0002
+
+  schedule:
+    epochs: 6
+
+  loss:
+    throttle_mse_weight: 1.0
+    stability_mse_weight: 1.0
+    phase_cross_entropy_weight: 0.25
+
+  outputs:
+    root_dir: outputs/neural_controller
+    checkpoint_path: outputs/neural_controller/models/neural_rocket_controller.pt
+    summary_path: outputs/neural_controller/training_summary.json
+    figures_dir: outputs/neural_controller/figures
+
+  reporting:
+    curated_report_path: docs/results/neural_controller_training_report.md
+    controller_comparison_path: docs/results/controller_comparison.md
+
+  limitations:
+    closed_loop_landing_solved: false
+    reinforcement_learning: false
+    high_fidelity_aerospace_validation: false
