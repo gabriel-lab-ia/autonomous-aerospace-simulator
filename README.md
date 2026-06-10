@@ -170,7 +170,7 @@ Softmax used during evaluation
 | Output heads | 3 |
 | Phase classes | 4 |
 | Total trainable parameters | ~745k |
-<img width="1024" height="449" alt="image" src="https://github.com/user-attachments/assets/e5de785c-e08b-4ae2-8575-f1b68ec817d2" />
+<img width="1170" height="611" alt="image" src="https://github.com/user-attachments/assets/ab904eb9-897a-453d-babf-b87617197fd4" />
 
 
 This gives the project a non-trivial deep learning component while keeping the architecture compact enough for local experimentation on CPU or CUDA-enabled GPUs.
