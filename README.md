@@ -194,8 +194,10 @@ Small curated plots and the generated report are versioned under
 | Heuristic V2 | still flying | `13,974.0973` | `489.5257` | `650.4656` | `0.9969` |
 | PID | crashed | `0.0000` | `-3.4798` | `784.9199` | `0.5949` |
 | Neural supervised | still flying | `1,739.5862` | `115.0260` | `700.6346` | `0.6625` |
-
+### r2
 ![Controller altitude comparison](docs/results/controller_altitude_comparison.png)
+### r3
+<img width="1422" height="776" alt="image" src="https://github.com/user-attachments/assets/34447d34-7055-4280-928b-609fe72ec041" />
 
 ![Controller velocity comparison](docs/results/controller_velocity_comparison.png)
 
