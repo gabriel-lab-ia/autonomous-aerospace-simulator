@@ -176,143 +176,47 @@ Softmax used during evaluation
 ```
 ### Parameter Metrics
 The default neural controller contains approximately:
-
-Metric	Value
-Input features	13
-Hidden width	512
-Latent dimension	256
-Output heads	3
-Phase classes	4
-Total trainable parameters	~745k
-
+| Metric                     | Value |
+| -------------------------- | ----: |
+| Input features             |    13 |
+| Hidden width               |   512 |
+| Latent dimension           |   256 |
+| Output heads               |     3 |
+| Phase classes              |     4 |
+| Total trainable parameters | ~745k |
 This gives the project a non-trivial deep learning component while keeping the
 architecture compact enough for local experimentation on CPU or CUDA-enabled
 GPUs.
 
-Training Strategy
-
+## This gives the project a non-trivial deep learning component while keeping the architecture compact enough for local experimentation on CPU or CUDA-enabled GPUs.
+### Training Strategy
+The first training stage uses supervised pretraining on synthetic aerospace
+state/sensor samples.
 The first training stage uses supervised pretraining on synthetic aerospace
 state/sensor samples.
 
 A deterministic teacher policy generates target throttle commands based on:
-
-altitude;
-vertical descent speed;
-remaining fuel mass;
-simplified landing-risk heuristics.
+> altitude;
+> vertical descent speed;
+> remaining fuel mass;
+> simplified landing-risk heuristics.
 
 The teacher policy is intentionally conservative:
-
-faster downward velocity increases throttle demand;
-lower altitude increases throttle demand;
-very low fuel reduces throttle aggressiveness;
-near-ground throttle is capped to avoid unrealistic runaway ascent in the
-simplified vertical simulator.
+> faster downward velocity increases throttle demand;
+> lower altitude increases throttle demand;
+> very low fuel reduces throttle aggressiveness;
+> near-ground throttle is capped to avoid unrealistic runaway ascent in the
+> simplified vertical simulator.
 
 The model is optimized with a multi-task loss:
-
 loss = throttle_mse + stability_mse + 0.25 * phase_cross_entropy
 
 This trains the network to jointly learn:
-
-continuous throttle imitation;
-approximate landing-control stability estimation;
-descent-phase classification from sensor state.
-Training Command
-
-The neural controller is part of the optional ML dependency group:
-
-uv sync --group ml
-uv run python scripts/train_neural_controller.py
-
-The training script automatically selects CUDA when available:
-
-Device: cuda  # if a CUDA-compatible GPU is available
-Device: cpu   # otherwise
-
-Generated training artifacts are written to:
-
-outputs/neural_controller/models/neural_rocket_controller.pt
-outputs/neural_controller/figures/neural_controller_loss.png
-outputs/neural_controller/figures/neural_controller_metrics.png
-
-These outputs are intentionally ignored by Git. Curated plots and reports can
-later be promoted to docs/results/ once benchmarked against the fixed,
-heuristic, PID, and future reinforcement-learning controllers.
-
-Validation Metrics Tracked During Training
-
-The training loop records:
-
-Metric	Meaning
-train_loss	Total multi-task training loss
-val_loss	Total multi-task validation loss
-val_throttle_mae	Mean absolute error of predicted throttle
-val_stability_mae	Mean absolute error of predicted stability score
-val_phase_accuracy	Accuracy of descent-phase classification
-
-These metrics are saved into the model checkpoint and plotted as PNG figures.
-
-Test Coverage
-
-The neural controller includes automated pytest coverage for its core contracts:
-
-forward-pass tensor shapes;
-throttle output bounded in [0, 1];
-stability output bounded in [0, 1];
-softmax phase probabilities summing to 1;
-synthetic dataset shape and value contracts;
-teacher-policy behavior under safer vs. riskier descent states;
-feature-normalization contract;
-single-state inference contract;
-parameter-count reporting.
-
-The tests use:
-
-pytest.importorskip("torch")
-
-This keeps the base CI lightweight and prevents the core simulator tests from
-failing when the optional ML dependency group is not installed.
-
-How The Neural Controller Fits Into The Project
-
-The current simulator already supports deterministic rocket dynamics,
-state-based control experiments, telemetry generation, SQL-backed API execution,
-plots, and Markdown reports.
-
-The neural controller extends this architecture with a machine-learning control
-layer:
-
-This design prepares the project for future controller comparisons:
-
-Controller	Status
-Fixed throttle	Implemented
-Heuristic V1	Implemented
-Heuristic V2	Implemented
-PID controller	Planned
-Neural supervised controller	Initial module implemented
-Reinforcement learning controller	Future work
-Current Limitations
-
-The neural controller is currently a supervised pretraining module. It does not
-yet run as the active closed-loop controller inside the simulator by default.
-
-The current simulator is also intentionally minimal and should not be treated as
-a high-fidelity aerospace model. It currently focuses on simplified vertical
-dynamics and does not yet include full aerodynamics, wind, gimbal actuation,
-high-fidelity rotational dynamics, or precise collision-time interpolation.
-
-The next engineering steps are:
-
-connect neural-controller inference directly to the simulator control loop;
-compare neural throttle against fixed-throttle and heuristic controllers;
-add a PID baseline for classical control comparison;
-generate curated neural-controller plots under docs/results/;
-expose the landing task as a reinforcement-learning environment;
-evolve from supervised imitation learning to simulator-in-the-loop RL.
+> continuous throttle imitation;
+> approximate landing-control stability estimation;
+> descent-phase classification from sensor state.
 
 ## Secure API And SQL Telemetry Layer
-
 The project includes a FastAPI service with API key authentication and a
 SQLAlchemy-backed telemetry store. SQLite supports local development by
 default, while `DATABASE_URL` keeps the persistence layer ready for PostgreSQL.
