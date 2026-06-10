@@ -194,10 +194,8 @@ Small curated plots and the generated report are versioned under
 | Heuristic V2 | still flying | `13,974.0973` | `489.5257` | `650.4656` | `0.9969` |
 | PID | crashed | `0.0000` | `-3.4798` | `784.9199` | `0.5949` |
 | Neural supervised | still flying | `1,739.5862` | `115.0260` | `700.6346` | `0.6625` |
-### r2
 ![Controller altitude comparison](docs/results/controller_altitude_comparison.png)
-### r3
-<img width="1237" height="1261" alt="image" src="https://github.com/user-attachments/assets/5af3d465-caf8-4cd5-832b-16b2e0f8a0db" />
+<img width="1237" height="1261" alt="image" src="https://github.com/user-attachments/assets/aceeb134-4b20-45de-87b7-834588e0dead" />
 ![Controller velocity comparison](docs/results/controller_velocity_comparison.png)
 
 The benchmark is a software/control regression experiment. It is not
