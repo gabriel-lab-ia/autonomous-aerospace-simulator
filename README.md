@@ -344,6 +344,8 @@ Linear(128 -> 4)
 | Phase classes              |       4 |
 | Total trainable parameters | 586,630 |
 
+<img width="1170" height="611" alt="image" src="https://github.com/user-attachments/assets/38c6a4ae-2b6e-43f1-a848-4d78a9f2c888" />
+
 ### Training Strategy
 
 The first training stage uses supervised pretraining on synthetic or simulator-derived aerospace telemetry. The model learns to imitate control-oriented targets while also estimating stability and descent phase.
