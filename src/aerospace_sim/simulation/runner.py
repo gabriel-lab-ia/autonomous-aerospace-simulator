@@ -9,7 +9,7 @@ from aerospace_sim.telemetry.recorder import TelemetryRecorder
 
 
 class ThrottleController(Protocol):
-    """Minimal controller contract shared by heuristic and future PID control."""
+    """Minimal controller contract shared by heuristic, PID, and neural control."""
 
     def compute_throttle(self, state: RocketState) -> float: ...
 

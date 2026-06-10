@@ -31,9 +31,9 @@ contract for scripts and API services. It accepts exactly one throttle source:
 - a controller implementing `compute_throttle(state)` for closed-loop control
 
 The runner owns simulator construction, step limits, optional ground-contact
-termination, and telemetry recording. A future `PIDLandingController` can
-implement the same minimal controller protocol without changing experiment
-or telemetry infrastructure.
+termination, and telemetry recording. `PIDLandingController` implements the
+same minimal controller protocol without changing experiment or telemetry
+infrastructure.
 
 ## Telemetry Schema
 

@@ -123,22 +123,22 @@ Controller	Status
 Fixed throttle	Implemented baseline
 Heuristic V1	Implemented rule-based controller
 Heuristic V2	Implemented but shows runaway ascent failure mode
-PID	Planned classical control baseline
+PID	Implemented classical control baseline
 Neural supervised controller	Experimental supervised module
 Reinforcement learning	Future work
 Limitations
 
 The current neural controller:
 
-is trained on synthetic data;
+is trained on synthetic or simulator-derived data;
 is supervised, not reinforcement learning;
 does not yet demonstrate successful landing;
 is not a high-fidelity aerospace controller;
 should be treated as an experimental foundation for future control research.
 Next Steps
 Improve the teacher policy or train from a stronger controller.
-Add a PID baseline.
-Generate trajectory-based imitation datasets.
-Compare fixed, heuristic, PID, and neural controllers.
+Tune the PID baseline.
+Expand trajectory-based imitation datasets across scenarios.
+Compare fixed, heuristic, PID, and neural controllers across scenarios.
 Add simulator-in-the-loop reinforcement learning.
 EOF

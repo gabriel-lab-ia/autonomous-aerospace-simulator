@@ -44,3 +44,26 @@ dynamics, hardware, disturbances, or real flight data. Simulator-loop
 inference is integrated as an experimental neural control layer and provides a
 foundation for future simulator-in-the-loop reinforcement learning and
 controller benchmarking.
+
+## Simulator-Telemetry Pipeline Smoke Validation
+
+The controller benchmark was also used as an accessible, reproducible source of
+simulated trajectory data. `scripts/prepare_neural_training_data.py` converted
+the benchmark trajectories into 7,500 rows matching the 13-dimensional neural
+sensor schema. A one-epoch smoke run validated that the preprocessed table can
+train the existing network:
+
+| Metric | Value |
+| --- | ---: |
+| Prepared simulated telemetry rows | 7,500 |
+| Epochs | 1 |
+| Validation loss | 0.2602493 |
+| Throttle MAE | 0.2725667 |
+| Stability MAE | 0.1135926 |
+| Phase accuracy | 71.4667% |
+
+The resulting checkpoint did not demonstrate landing. In the controller
+benchmark it remained flying after 60 seconds and climbed to 1,739.586 m.
+These numbers validate extraction, preprocessing, training, inference, and
+evaluation plumbing only. They are not real flight-data results and do not
+show that neural control improved the landing task.

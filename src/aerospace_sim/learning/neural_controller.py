@@ -24,6 +24,8 @@ import torch
 import torch.nn as nn
 from torch.utils.data import Dataset
 
+from aerospace_sim.learning.telemetry_preprocessing import table_state_matrix
+
 
 STATE_FEATURES: tuple[str, ...] = (
     "position_x_m",
@@ -252,6 +254,35 @@ class RocketControlDataset(Dataset):
     def __init__(self, n_samples: int = 20_000, seed: int = 42) -> None:
         raw_states = generate_synthetic_rocket_states(n_samples=n_samples, seed=seed)
         throttle = expert_throttle_policy(raw_states)
+        stability = stability_score(raw_states, throttle)
+        phase = descent_phase_labels(raw_states)
+
+        self.raw_states = torch.tensor(raw_states, dtype=torch.float32)
+        self.x = torch.tensor(normalize_state_features(raw_states), dtype=torch.float32)
+        self.y_throttle = torch.tensor(throttle, dtype=torch.float32)
+        self.y_stability = torch.tensor(stability, dtype=torch.float32)
+        self.y_phase = torch.tensor(phase, dtype=torch.long)
+
+        permutation = torch.randperm(len(self.x), generator=torch.Generator().manual_seed(seed))
+        self.raw_states = self.raw_states[permutation]
+        self.x = self.x[permutation]
+        self.y_throttle = self.y_throttle[permutation]
+        self.y_stability = self.y_stability[permutation]
+        self.y_phase = self.y_phase[permutation]
+
+    def __len__(self) -> int:
+        return len(self.x)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        return self.x[idx], self.y_throttle[idx], self.y_stability[idx], self.y_phase[idx]
+
+
+class TelemetryControlDataset(Dataset):
+    """Supervised dataset extracted from reproducible simulator trajectories."""
+
+    def __init__(self, table, seed: int = 42) -> None:
+        raw_states = table_state_matrix(table)
+        throttle = table["target_throttle"].to_numpy(dtype=np.float32).reshape(-1, 1)
         stability = stability_score(raw_states, throttle)
         phase = descent_phase_labels(raw_states)
 

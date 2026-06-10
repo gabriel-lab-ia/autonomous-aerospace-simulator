@@ -18,6 +18,6 @@ flowchart LR
     PLOT --> REPORT
 ```
 
-The experimental neural controller and future PID controller use the same
+The experimental neural controller and implemented PID controller use the same
 controller-to-throttle contract without changing scenario construction,
 physics integration, or telemetry. PyTorch remains optional.

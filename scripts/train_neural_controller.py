@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import pandas as pd
 import torch
 from torch import nn
 from torch.utils.data import DataLoader, random_split
@@ -12,6 +13,7 @@ from torch.utils.data import DataLoader, random_split
 from aerospace_sim.learning.neural_controller import (
     NeuralRocketControllerNet,
     RocketControlDataset,
+    TelemetryControlDataset,
     model_parameter_report,
 )
 
@@ -89,17 +91,28 @@ def main() -> None:
     parser.add_argument("--samples", type=int, default=4096)
     parser.add_argument("--batch-size", type=int, default=256)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--dataset",
+        type=Path,
+        help="Prepared simulator-telemetry CSV; defaults to synthetic state sampling.",
+    )
     args = parser.parse_args()
     if args.epochs <= 0 or args.samples < 10 or args.batch_size <= 0:
         parser.error("epochs and batch-size must be positive; samples must be at least 10")
 
     torch.manual_seed(args.seed)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    dataset = RocketControlDataset(n_samples=args.samples, seed=args.seed)
-    split = int(args.samples * 0.8)
+    if args.dataset:
+        dataset = TelemetryControlDataset(pd.read_csv(args.dataset), seed=args.seed)
+        dataset_kind = "supervised imitation from prepared simulator telemetry"
+    else:
+        dataset = RocketControlDataset(n_samples=args.samples, seed=args.seed)
+        dataset_kind = "supervised pretraining on synthetic telemetry"
+    sample_count = len(dataset)
+    split = int(sample_count * 0.8)
     train_dataset, validation_dataset = random_split(
         dataset,
-        [split, args.samples - split],
+        [split, sample_count - split],
         generator=torch.Generator().manual_seed(args.seed),
     )
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
@@ -139,8 +152,8 @@ def main() -> None:
     final_metrics = evaluate(model, validation_loader, device)
     parameter_report = model_parameter_report(model)
     metadata = {
-        "training_kind": "supervised pretraining on synthetic telemetry",
-        "samples": args.samples,
+        "training_kind": dataset_kind,
+        "samples": sample_count,
         "epochs": args.epochs,
         "seed": args.seed,
     }
@@ -149,7 +162,7 @@ def main() -> None:
     summary = {
         "device": str(device),
         "epochs": args.epochs,
-        "samples": args.samples,
+        "samples": sample_count,
         "train_samples": len(train_dataset),
         "validation_samples": len(validation_dataset),
         "final_train_loss": train_losses[-1],
