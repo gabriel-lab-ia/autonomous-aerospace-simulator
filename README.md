@@ -54,6 +54,8 @@ The current implementation models deterministic vertical motion using gravity, m
 
 PyTorch, CUDA-oriented training, and container-orchestration deployment services are planned capabilities and are not integrated into the current simulation loop.
 
+<img width="1360" height="768" alt="image" src="https://github.com/user-attachments/assets/b37dedc0-cefd-4356-8747-4963c84ddab6" />
+
 ## Secure API And SQL Telemetry Layer
 
 The project includes a FastAPI service with API key authentication and a
