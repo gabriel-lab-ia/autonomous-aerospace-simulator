@@ -1,0 +1,34 @@
+# Visualization configuration for reproducible report plots.
+#
+# The project uses dark, high-contrast plots for curated GitHub reports.
+
+visualization:
+  style:
+    theme: dark
+    figure_facecolor: black
+    axes_facecolor: black
+    text_color: white
+    grid: true
+    grid_alpha: 0.25
+
+  output:
+    dpi: 300
+    bbox_inches: tight
+    results_dir: docs/results
+    temporary_outputs_dir: outputs
+
+  trajectory_plots:
+    altitude_over_time: true
+    vertical_velocity_over_time: true
+    fuel_mass_over_time: true
+    phase_space_3d: true
+
+  landing_plots:
+    landing_status_by_throttle: true
+    final_velocity_by_throttle: true
+    landing_summary_3d: true
+
+  neural_controller_plots:
+    training_loss: true
+    validation_metrics: true
+    note: "Neural-controller plots are generated from supervised synthetic-data training runs."

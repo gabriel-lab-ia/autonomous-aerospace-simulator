@@ -1,0 +1,35 @@
+# Environment configuration for the simplified aerospace simulator.
+#
+# This file isolates world/environment parameters from the full default config.
+# The current simulator focuses on simplified vertical dynamics. Wind and
+# atmospheric fields are present as explicit placeholders for future extensions.
+
+environment:
+  gravity:
+    x: 0.0
+    y: 0.0
+    z: -9.80665
+    unit: m/s^2
+
+  landing_pad:
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    radius: 5.0
+    unit: m
+
+  wind:
+    enabled: false
+    x: 0.0
+    y: 0.0
+    z: 0.0
+    unit: m/s
+
+  atmosphere:
+    enabled: false
+    model: none
+    note: "Aerodynamic drag and atmospheric-density modeling are future work."
+
+  terrain:
+    type: flat_pad
+    ground_altitude_m: 0.0
