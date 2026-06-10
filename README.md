@@ -54,7 +54,262 @@ The current implementation models deterministic vertical motion using gravity, m
 
 PyTorch, CUDA-oriented training, and container-orchestration deployment services are planned capabilities and are not integrated into the current simulation loop.
 
+## Deep Neural Rocket Controller
 <img width="1360" height="768" alt="image" src="https://github.com/user-attachments/assets/b37dedc0-cefd-4356-8747-4963c84ddab6" />
+The project now includes an optional PyTorch-based deep learning layer for
+rocket landing control experiments.
+
+This module adapts a dense multi-head perceptron architecture to the aerospace
+domain. Instead of learning from quantum statevectors, the neural controller
+learns from rocket state/sensor telemetry and predicts bounded control signals
+for simplified landing dynamics.
+
+The current neural controller is implemented as a supervised pretraining stage.
+It is not yet a closed-loop reinforcement learning controller inside the
+simulator runtime, but it provides the tested foundation for future
+simulator-in-the-loop neural control and RL experiments.
+
+- [Deep Neural Controller Documentation](docs/neural_controller.md)
+- Source: `src/aerospace_sim/learning/neural_controller.py`
+- Training script: `scripts/train_neural_controller.py`
+- Tests: `tests/test_neural_controller.py`
+
+### Neural Control Objective
+
+The neural network learns a control-oriented representation of the rocket state
+and predicts:
+
+| Output head | Task | Output |
+|---|---|---|
+| `throttle_head` | Continuous control command | Bounded throttle in `[0, 1]` |
+| `stability_head` | Control-quality estimation | Stability score in `[0, 1]` |
+| `phase_head` | Descent-phase recognition | 4-class classification logits |
+
+The descent-phase classes are:
+
+1. `terminal_descent`
+2. `powered_descent`
+3. `approach`
+4. `high_altitude`
+
+This allows the model to learn not only a throttle command, but also an
+internal interpretation of the flight phase and an approximate stability signal
+for landing-control diagnostics.
+
+### Neural Input Vector
+
+The model consumes the simulator's 13-dimensional aerospace state vector:
+
+| Index | Feature | Unit |
+|---:|---|---|
+| 0 | position_x_m | m |
+| 1 | position_y_m | m |
+| 2 | altitude_z_m | m |
+| 3 | velocity_x_mps | m/s |
+| 4 | velocity_y_mps | m/s |
+| 5 | vertical_velocity_z_mps | m/s |
+| 6 | roll_rad | rad |
+| 7 | pitch_rad | rad |
+| 8 | yaw_rad | rad |
+| 9 | angular_velocity_x_radps | rad/s |
+| 10 | angular_velocity_y_radps | rad/s |
+| 11 | angular_velocity_z_radps | rad/s |
+| 12 | fuel_mass_kg | kg |
+
+Before entering the neural network, raw state values are normalized using fixed
+engineering-scale constants. This keeps altitude, velocity, attitude, angular
+velocity, and fuel mass in numerically stable ranges for training.
+
+### Deep Learning Architecture
+
+The controller uses a dense encoder with normalization, nonlinear activation,
+dropout, and multiple task-specific heads.
+
+```text
+Input: 13 aerospace state/sensor features
+
+Encoder:
+Linear(13 -> 512)
+LayerNorm(512)
+GELU
+Dropout(0.05)
+
+Linear(512 -> 512)
+LayerNorm(512)
+GELU
+Dropout(0.05)
+
+Linear(512 -> 256)
+LayerNorm(256)
+GELU
+
+Linear(256 -> 256)
+LayerNorm(256)
+GELU
+
+The shared latent representation is then passed to three output heads:
+
+Throttle Head:
+Linear(256 -> 128)
+LayerNorm(128)
+GELU
+Linear(128 -> 64)
+GELU
+Linear(64 -> 1)
+Sigmoid
+
+Stability Head:
+Linear(256 -> 128)
+LayerNorm(128)
+GELU
+Linear(128 -> 64)
+GELU
+Linear(64 -> 1)
+Sigmoid
+
+Phase Head:
+Linear(256 -> 128)
+LayerNorm(128)
+GELU
+Linear(128 -> 4)
+Softmax used during evaluation
+```
+### Parameter Metrics
+The default neural controller contains approximately:
+
+Metric	Value
+Input features	13
+Hidden width	512
+Latent dimension	256
+Output heads	3
+Phase classes	4
+Total trainable parameters	~745k
+
+This gives the project a non-trivial deep learning component while keeping the
+architecture compact enough for local experimentation on CPU or CUDA-enabled
+GPUs.
+
+Training Strategy
+
+The first training stage uses supervised pretraining on synthetic aerospace
+state/sensor samples.
+
+A deterministic teacher policy generates target throttle commands based on:
+
+altitude;
+vertical descent speed;
+remaining fuel mass;
+simplified landing-risk heuristics.
+
+The teacher policy is intentionally conservative:
+
+faster downward velocity increases throttle demand;
+lower altitude increases throttle demand;
+very low fuel reduces throttle aggressiveness;
+near-ground throttle is capped to avoid unrealistic runaway ascent in the
+simplified vertical simulator.
+
+The model is optimized with a multi-task loss:
+
+loss = throttle_mse + stability_mse + 0.25 * phase_cross_entropy
+
+This trains the network to jointly learn:
+
+continuous throttle imitation;
+approximate landing-control stability estimation;
+descent-phase classification from sensor state.
+Training Command
+
+The neural controller is part of the optional ML dependency group:
+
+uv sync --group ml
+uv run python scripts/train_neural_controller.py
+
+The training script automatically selects CUDA when available:
+
+Device: cuda  # if a CUDA-compatible GPU is available
+Device: cpu   # otherwise
+
+Generated training artifacts are written to:
+
+outputs/neural_controller/models/neural_rocket_controller.pt
+outputs/neural_controller/figures/neural_controller_loss.png
+outputs/neural_controller/figures/neural_controller_metrics.png
+
+These outputs are intentionally ignored by Git. Curated plots and reports can
+later be promoted to docs/results/ once benchmarked against the fixed,
+heuristic, PID, and future reinforcement-learning controllers.
+
+Validation Metrics Tracked During Training
+
+The training loop records:
+
+Metric	Meaning
+train_loss	Total multi-task training loss
+val_loss	Total multi-task validation loss
+val_throttle_mae	Mean absolute error of predicted throttle
+val_stability_mae	Mean absolute error of predicted stability score
+val_phase_accuracy	Accuracy of descent-phase classification
+
+These metrics are saved into the model checkpoint and plotted as PNG figures.
+
+Test Coverage
+
+The neural controller includes automated pytest coverage for its core contracts:
+
+forward-pass tensor shapes;
+throttle output bounded in [0, 1];
+stability output bounded in [0, 1];
+softmax phase probabilities summing to 1;
+synthetic dataset shape and value contracts;
+teacher-policy behavior under safer vs. riskier descent states;
+feature-normalization contract;
+single-state inference contract;
+parameter-count reporting.
+
+The tests use:
+
+pytest.importorskip("torch")
+
+This keeps the base CI lightweight and prevents the core simulator tests from
+failing when the optional ML dependency group is not installed.
+
+How The Neural Controller Fits Into The Project
+
+The current simulator already supports deterministic rocket dynamics,
+state-based control experiments, telemetry generation, SQL-backed API execution,
+plots, and Markdown reports.
+
+The neural controller extends this architecture with a machine-learning control
+layer:
+
+This design prepares the project for future controller comparisons:
+
+Controller	Status
+Fixed throttle	Implemented
+Heuristic V1	Implemented
+Heuristic V2	Implemented
+PID controller	Planned
+Neural supervised controller	Initial module implemented
+Reinforcement learning controller	Future work
+Current Limitations
+
+The neural controller is currently a supervised pretraining module. It does not
+yet run as the active closed-loop controller inside the simulator by default.
+
+The current simulator is also intentionally minimal and should not be treated as
+a high-fidelity aerospace model. It currently focuses on simplified vertical
+dynamics and does not yet include full aerodynamics, wind, gimbal actuation,
+high-fidelity rotational dynamics, or precise collision-time interpolation.
+
+The next engineering steps are:
+
+connect neural-controller inference directly to the simulator control loop;
+compare neural throttle against fixed-throttle and heuristic controllers;
+add a PID baseline for classical control comparison;
+generate curated neural-controller plots under docs/results/;
+expose the landing task as a reinforcement-learning environment;
+evolve from supervised imitation learning to simulator-in-the-loop RL.
 
 ## Secure API And SQL Telemetry Layer
 
