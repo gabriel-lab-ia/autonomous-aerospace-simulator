@@ -1,0 +1,30 @@
+# Rocket configuration for the simplified landing simulator.
+#
+# Values are intentionally compact and educational. They support the current
+# vertical-dynamics model and do not represent a flight-certified vehicle.
+
+rocket:
+  mass:
+    dry_mass_kg: 1200.0
+    initial_fuel_mass_kg: 800.0
+
+  propulsion:
+    max_thrust_n: 35000.0
+    fuel_burn_rate_kg_per_s_at_full_throttle: 2.5
+    throttle_min: 0.0
+    throttle_max: 1.0
+
+  geometry:
+    reference_radius_m: 1.0
+    reference_height_m: 12.0
+    note: "Geometry is informational until aerodynamic and rotational models are expanded."
+
+  control:
+    max_gimbal_angle_deg: 15.0
+    gimbal_enabled: false
+    note: "Gimbal commands are reserved for a future rotational-dynamics model."
+
+  landing_constraints:
+    target_altitude_m: 0.0
+    max_touchdown_speed_m_s: 5.0
+    landing_pad_radius_m: 5.0
