@@ -31,6 +31,7 @@ uv run python scripts/compare_throttle_levels.py
 uv run python scripts/run_landing_experiment.py
 uv run python scripts/run_heuristic_landing.py
 uv run python scripts/run_heuristic_landing_v2.py
+uv run python scripts/benchmark_controllers.py
 ```
 
 ## Regenerate Reports
@@ -43,16 +44,33 @@ uv run python scripts/generate_trajectory_report.py
 uv run python scripts/generate_landing_report.py
 uv run python scripts/generate_heuristic_landing_v2_report.py
 uv run python scripts/generate_numerical_validation_report.py
+uv run python scripts/benchmark_controllers.py
 ```
 
 Review the generated diff before committing results.
+
+The benchmark writes raw CSV/JSON and trajectories under
+`outputs/controller_benchmark/`, then copies small comparative plots and a
+generated report to `docs/results/`.
+
+## Prepare Simulator Telemetry For Neural Training
+
+```bash
+uv run python scripts/benchmark_controllers.py
+uv run python scripts/prepare_neural_training_data.py
+uv run python scripts/train_neural_controller.py \
+  --dataset outputs/neural_controller/preprocessed_controller_telemetry.csv
+```
+
+This pipeline extracts accessible data from this repository's own simulated
+trajectories. It does not use or claim real flight telemetry.
 
 ## Configuration And Telemetry
 
 Scripts and API routes use the same validated `SimulationScenario`, shared
 simulation runner, and stable telemetry schema. See
 [Configuration And Telemetry Contracts](configuration_and_telemetry.md) for
-the active YAML fields, override behavior, and future PID integration point.
+the active YAML fields, override behavior, and PID integration point.
 
 ## Run Tests
 

@@ -7,8 +7,9 @@
 - physics: constant Earth gravity
 - vehicle: simplified throttle-controlled rocket engine
 - environment: landing outcome evaluation
-- control: heuristic landing controllers and optional experimental neural inference
-- training: supervised synthetic-telemetry neural-controller pretraining
+- control: fixed, heuristic, PID, and optional experimental neural inference
+- evaluation: shared-scenario controller benchmark, metrics, trajectories, and reports
+- training: supervised synthetic or simulator-telemetry neural-controller pretraining
 - simulation: Euler-integrated basic rocket simulator
 - telemetry: reusable, dataframe-backed telemetry recorder
 - visualization: reusable 3D phase-space and controller-state plots
@@ -20,7 +21,7 @@
 - physics: aerodynamics and rotational dynamics
 - vehicle: gimbal and sensors
 - environment: wind, terrain, rewards, and RL environment interface
-- control: PID, evaluated neural controllers, and reinforcement learning agents
+- control: tuned PID, evaluated neural controllers, and reinforcement learning agents
 - training: simulator-in-the-loop learning, evaluators, and replay buffers
 - telemetry: experiment lineage, metrics aggregation, and dataset versioning
 - visualization: 3D animations and interactive dashboards

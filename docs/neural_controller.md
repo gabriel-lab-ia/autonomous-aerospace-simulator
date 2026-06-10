@@ -10,6 +10,22 @@ teacher. This is useful for validating data, checkpoint, and inference
 plumbing. It is not high-fidelity aerospace validation and does not establish
 that the learned policy can land the simulated rocket reliably.
 
+The training script can also consume preprocessed trajectories produced by the
+controller benchmark. Preprocessing maps telemetry into the network's
+13-dimensional sensor vector and retains controller throttle as an imitation
+target:
+
+```bash
+uv run python scripts/benchmark_controllers.py
+uv run python scripts/prepare_neural_training_data.py
+uv run python scripts/train_neural_controller.py \
+  --dataset outputs/neural_controller/preprocessed_controller_telemetry.csv
+```
+
+These are reproducible simulated data, not real aerospace flight data. Future
+RL error penalties are designed in [the RL environment plan](rl_environment_plan.md)
+but are not implemented or executed.
+
 ## Install And Train
 
 ```bash

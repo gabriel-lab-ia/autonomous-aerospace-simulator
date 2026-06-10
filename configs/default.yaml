@@ -34,6 +34,10 @@ rocket:
   fuel_burn_rate: 2.5
   max_gimbal_angle_deg: 15.0
 
+pid:
+  config_path: configs/pid.yaml
+  note: Classical feedback baseline; benchmark loads matching explicit gains.
+
 training:
   device: cuda
   episodes: 1000

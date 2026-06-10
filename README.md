@@ -24,7 +24,7 @@ autonomous control experiments, secure API execution, and SQL-backed telemetry.
 
 Build an extensible simulator where increasingly capable controllers can be evaluated under explicit physical constraints.
 
-The current implementation models deterministic vertical motion using gravity, mass, upward thrust, fuel consumption, and Euler integration. The state representation is 3D-ready, but rotational dynamics, aerodynamics, gimbal control, PID, reinforcement learning, and deployment infrastructure are future work.
+The current implementation models deterministic vertical motion using gravity, mass, upward thrust, fuel consumption, and Euler integration. The state representation is 3D-ready, but rotational dynamics, aerodynamics, gimbal control, reinforcement learning, and deployment infrastructure are future work.
 
 ## Current Capabilities
 
@@ -33,7 +33,10 @@ The current implementation models deterministic vertical motion using gravity, m
 - fixed-throttle experiments
 - landing outcome evaluation
 - heuristic landing controllers V1 and V2
+- classical PID landing-controller baseline
 - optional experimental neural controller integrated through the controller contract
+- shared-scenario controller trajectory benchmark with CSV/JSON metrics
+- generated controller comparison report and dark comparative plots
 - reusable YAML scenario construction and standardized telemetry
 - CSV telemetry, 2D/3D PNG plots, and Markdown reports
 - reproducible Python environment managed with `uv`
@@ -129,13 +132,13 @@ Gimbal commands are reserved for a future rotational-dynamics model.
 
 ## Roadmap
 
-1. Implement and benchmark a classical PID landing controller
-2. Compare fixed throttle, Heuristic V1, Heuristic V2, and PID
-3. Add precise ground-contact interpolation and stronger physics validation
-4. Add a Dockerfile and Docker Compose stack with API and PostgreSQL
-5. Build a telemetry visualization dashboard
-6. Expose the landing task as a reinforcement learning environment
-7. Extend neural-controller evaluation toward simulator-in-the-loop learning
+1. Tune and stress-test the implemented PID baseline
+2. Train neural imitation baselines from PID and benchmark trajectories
+3. Add a tested Gymnasium-compatible RL environment and reward penalties
+4. Expand controller benchmarking across initial-state scenarios
+5. Add precise ground-contact interpolation and stronger physics validation
+6. Add a Dockerfile and Docker Compose stack with API and PostgreSQL
+7. Build a telemetry visualization dashboard
 8. Prepare a future Kubernetes deployment
 
 ## Current Limitations
@@ -147,9 +150,9 @@ See [Current Simulator Limitations](docs/limitations.md) for the complete scope 
 ## Deep Neural Rocket Controller
 
 The optional neural layer provides supervised neural-controller pretraining on
-synthetic telemetry and experimental inference through the real simulator
-loop. This is a foundation for future simulator-in-the-loop reinforcement
-learning, not high-fidelity aerospace validation.
+synthetic or simulator-derived telemetry and experimental inference through the
+real simulator loop. This is a foundation for future simulator-in-the-loop
+reinforcement learning, not high-fidelity aerospace validation.
 
 ### Parameter Metrics
 
@@ -160,6 +163,8 @@ learning, not high-fidelity aerospace validation.
 - [Deep Neural Controller Documentation](docs/neural_controller.md)
 - [Neural Controller Training Report](docs/results/neural_controller_training_report.md)
 - [Controller Comparison](docs/results/controller_comparison.md)
+- [Controller Trajectory Comparison](docs/results/controller_trajectory_comparison.md)
+- [RL Environment Plan](docs/rl_environment_plan.md)
 
 ## Initial Results
 
@@ -273,7 +278,8 @@ The second heuristic landing controller was tested as a dynamic state-based cont
 
 The result shows a runaway ascent failure mode: the controller becomes too aggressive, keeps throttle near maximum, and drives the rocket far above the landing zone.
 
-This failed-control experiment is documented because it motivates the next step: PID control and smoother throttle regulation.
+This failed-control experiment is documented because it motivates PID tuning
+and smoother throttle regulation.
 
 - [Heuristic Controller V2 Report](docs/results/heuristic_v2_report.md)
 - [Heuristic Controller V2 Telemetry](docs/results/heuristic_v2_telemetry.csv)

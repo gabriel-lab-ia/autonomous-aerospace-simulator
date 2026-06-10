@@ -15,17 +15,19 @@ The current simulator is a deterministic educational baseline, not a high-fideli
 ## Control And Learning
 
 - Fixed-throttle and heuristic controllers are implemented.
-- No PID controller is implemented yet.
+- A classical PID baseline is implemented, but its gains are not optimized and
+  the current benchmark does not demonstrate a safe landing.
 - An experimental supervised neural controller is integrated, but it has not
   been validated as an effective landing controller.
-- No reinforcement learning environment is implemented yet.
+- No reinforcement learning environment or trained RL policy is implemented yet.
 - Heuristic V1 and V2 are useful failure baselines, not successful landing solutions.
 
 ## Platform And Operations
 
 - The current vertical scenario is centralized in YAML; controller-specific tuning remains in controller classes.
-- Telemetry uses a reusable dataframe-backed recorder and CSV files; there is no telemetry database yet.
-- There is no API, web service, Docker image, Kubernetes deployment, or automated training pipeline.
+- Telemetry uses reusable dataframe and SQL-backed storage contracts; experiment
+  lineage and dataset versioning remain limited.
+- There is no Docker image, Kubernetes deployment, or automated training service.
 - The repository does not currently claim flightworthiness or real-world control suitability.
 
 These limitations are intentional milestones. They make each future physics, control, and MLOps improvement measurable against a small, understandable baseline.

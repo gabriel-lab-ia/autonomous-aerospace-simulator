@@ -1,0 +1,11 @@
+pid:
+  target_altitude_m: 0.0
+  target_vertical_velocity_m_s: -2.0
+  kp: 0.045
+  ki: 0.002
+  kd: 0.012
+  dt: 0.02
+  throttle_min: 0.0
+  throttle_max: 1.0
+  integral_limit: 20.0
+  note: "Classical PID baseline for simplified vertical landing experiments."
