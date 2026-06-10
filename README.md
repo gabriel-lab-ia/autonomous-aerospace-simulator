@@ -197,8 +197,7 @@ Small curated plots and the generated report are versioned under
 ### r2
 ![Controller altitude comparison](docs/results/controller_altitude_comparison.png)
 ### r3
-<img width="1422" height="776" alt="image" src="https://github.com/user-attachments/assets/34447d34-7055-4280-928b-609fe72ec041" />
-
+<img width="1237" height="1261" alt="image" src="https://github.com/user-attachments/assets/5af3d465-caf8-4cd5-832b-16b2e0f8a0db" />
 ![Controller velocity comparison](docs/results/controller_velocity_comparison.png)
 
 The benchmark is a software/control regression experiment. It is not
