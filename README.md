@@ -55,14 +55,10 @@ The current implementation models deterministic vertical motion using gravity, m
 PyTorch, CUDA-oriented training, and container-orchestration deployment services are planned capabilities and are not integrated into the current simulation loop.
 
 ## Deep Neural Rocket Controller
-<img width="1360" height="768" alt="image" src="https://github.com/user-attachments/assets/b37dedc0-cefd-4356-8747-4963c84ddab6" />
 The project now includes an optional PyTorch-based deep learning layer for
 rocket landing control experiments.
 
-This module adapts a dense multi-head perceptron architecture to the aerospace
-domain. Instead of learning from quantum statevectors, the neural controller
-learns from rocket state/sensor telemetry and predicts bounded control signals
-for simplified landing dynamics.
+>>> This module adapts a dense multi-head perceptron architecture to the aerospace domain. Instead of learning from quantum statevectors, the neural controller learns from rocket state/sensor telemetry and predicts bounded control signals for simplified landing dynamics.
 
 The current neural controller is implemented as a supervised pretraining stage.
 It is not yet a closed-loop reinforcement learning controller inside the
@@ -187,6 +183,7 @@ The default neural controller contains approximately:
 This gives the project a non-trivial deep learning component while keeping the
 architecture compact enough for local experimentation on CPU or CUDA-enabled
 GPUs.
+<img width="1199" height="526" alt="image" src="https://github.com/user-attachments/assets/e2c21461-7ea8-47a1-90f7-612b3633f604" />
 
 ## This gives the project a non-trivial deep learning component while keeping the architecture compact enough for local experimentation on CPU or CUDA-enabled GPUs.
 ### Training Strategy
