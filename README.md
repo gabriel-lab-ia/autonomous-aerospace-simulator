@@ -235,16 +235,127 @@ See [Current Simulator Limitations](docs/limitations.md) for the complete scope 
 
 ## Deep Neural Rocket Controller
 
-The optional neural layer provides supervised neural-controller pretraining on
-synthetic or simulator-derived telemetry and experimental inference through the
-real simulator loop. This is a foundation for future simulator-in-the-loop
-reinforcement learning, not high-fidelity aerospace validation.
+The optional neural layer provides supervised neural-controller pretraining on synthetic or simulator-derived telemetry and experimental inference through the real simulator loop. This is a foundation for future simulator-in-the-loop reinforcement learning, not high-fidelity aerospace validation.
+
+The controller is designed as a compact multi-head multilayer perceptron for rocket landing-control experiments. It learns from the simulator state vector and predicts bounded control-oriented outputs for throttle imitation, stability estimation, and descent-phase classification.
+
+### Neural Control Objective
+
+The neural controller learns a shared latent representation of the aerospace state and produces three outputs:
+
+| Output head      | Task                       | Output                        |
+| ---------------- | -------------------------- | ----------------------------- |
+| `throttle_head`  | Continuous control command | Bounded throttle in `[0, 1]`  |
+| `stability_head` | Control-quality estimation | Stability score in `[0, 1]`   |
+| `phase_head`     | Descent-phase recognition  | 4-class classification logits |
+
+The descent-phase classes are:
+
+1. `terminal_descent`
+2. `powered_descent`
+3. `approach`
+4. `high_altitude`
+
+This allows the model to learn not only a throttle command, but also an internal approximation of flight phase and landing-control stability.
+
+### Neural Input Vector
+
+The model consumes the simulator's 13-dimensional aerospace state vector:
+
+| Index | Feature                    | Unit  |
+| ----: | -------------------------- | ----- |
+|     0 | `position_x_m`             | m     |
+|     1 | `position_y_m`             | m     |
+|     2 | `altitude_z_m`             | m     |
+|     3 | `velocity_x_mps`           | m/s   |
+|     4 | `velocity_y_mps`           | m/s   |
+|     5 | `vertical_velocity_z_mps`  | m/s   |
+|     6 | `roll_rad`                 | rad   |
+|     7 | `pitch_rad`                | rad   |
+|     8 | `yaw_rad`                  | rad   |
+|     9 | `angular_velocity_x_radps` | rad/s |
+|    10 | `angular_velocity_y_radps` | rad/s |
+|    11 | `angular_velocity_z_radps` | rad/s |
+|    12 | `fuel_mass_kg`             | kg    |
+
+Before entering the neural network, raw values are normalized with engineering-scale constants so that altitude, velocity, attitude, angular velocity, and fuel mass remain numerically stable.
+
+### Multilayer Perceptron Architecture
+
+```text
+Input: 13 aerospace state/sensor features
+
+Encoder:
+Linear(13 -> 512)
+LayerNorm(512)
+GELU
+Dropout(0.05)
+
+Linear(512 -> 512)
+LayerNorm(512)
+GELU
+Dropout(0.05)
+
+Linear(512 -> 256)
+LayerNorm(256)
+GELU
+
+Linear(256 -> 256)
+LayerNorm(256)
+GELU
+```
+
+The shared latent representation is passed to three output heads:
+
+```text
+Throttle Head:
+Linear(256 -> 128)
+LayerNorm(128)
+GELU
+Linear(128 -> 64)
+GELU
+Linear(64 -> 1)
+Sigmoid
+
+Stability Head:
+Linear(256 -> 128)
+LayerNorm(128)
+GELU
+Linear(128 -> 64)
+GELU
+Linear(64 -> 1)
+Sigmoid
+
+Phase Head:
+Linear(256 -> 128)
+LayerNorm(128)
+GELU
+Linear(128 -> 4)
+```
 
 ### Parameter Metrics
 
-| Metric | Value |
-| --- | ---: |
+| Metric                     |   Value |
+| -------------------------- | ------: |
+| Input features             |      13 |
+| Hidden width               |     512 |
+| Latent dimension           |     256 |
+| Output heads               |       3 |
+| Phase classes              |       4 |
 | Total trainable parameters | 586,630 |
+
+### Training Strategy
+
+The first training stage uses supervised pretraining on synthetic or simulator-derived aerospace telemetry. The model learns to imitate control-oriented targets while also estimating stability and descent phase.
+
+The training objective combines regression and classification losses:
+
+```text
+loss = throttle_mse + stability_mse + 0.25 * phase_cross_entropy
+```
+
+This trains the network to jointly learn continuous throttle imitation, approximate landing-control stability estimation, and descent-phase classification from the simulator state.
+
 
 ### Simulator-Telemetry Training Pipeline
 
